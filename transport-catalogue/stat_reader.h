@@ -23,7 +23,11 @@
 #include "input_reader.h"
 
 namespace statquery {
-    
-void Query(catalog::TransportCatalogue& cat);
+ 
+void BusOut(catalog::TransportCatalogue& catalog, std::string& name, std::ostream& out = std::cout);	
+	
+void StopOut(catalog::TransportCatalogue& catalog, std::string& name, std::ostream& out = std::cout);
+	
+void Query(catalog::TransportCatalogue& catalog, std::istream& input = std::cin, std::ostream& out = std::cout);
 
 }

@@ -46,8 +46,9 @@ namespace detail {
 }
 
 namespace filling {
-    
-void AddStopInCat(catalog::TransportCatalogue& cat, std::vector<std::string>& lines_with_stops) {
+
+// В данной функции не использую константную ссылку у lines_with_stops, так как в процессе (на 66 строке) изменяю строку, убирая из нее координаты остановки!
+void AddStopInCat(catalog::TransportCatalogue& catalog, std::vector<std::string>& lines_with_stops) {
     for (auto& stop_line : lines_with_stops) {
         
 		auto [name, coordinates] = detail::SeparateRequests(stop_line, ':');
@@ -60,7 +61,7 @@ void AddStopInCat(catalog::TransportCatalogue& cat, std::vector<std::string>& li
 		double lat = std::stod(std::string(detail::Retrieve(lat_s)));
         double lng = std::stod(std::string(detail::Retrieve(lng_s)));
 
-		cat.AddStop(name, lat, lng);  
+		catalog.AddStop(name, lat, lng);  
         
 		stop_line = std::string(name) + ": " + std::string(line_distance);
     }
@@ -68,7 +69,7 @@ void AddStopInCat(catalog::TransportCatalogue& cat, std::vector<std::string>& li
 
 
 
-void AddStopDistance(catalog::TransportCatalogue& cat, std::vector<std::string>& stop_distance_lines) {
+void AddStopDistance(catalog::TransportCatalogue& catalog, const std::vector<std::string>& stop_distance_lines) {
 	for (auto& distance_line_to_stop : stop_distance_lines) {
 		auto [name, distance_line] = detail::SeparateRequests(distance_line_to_stop, ':');
 		
@@ -85,15 +86,16 @@ void AddStopDistance(catalog::TransportCatalogue& cat, std::vector<std::string>&
 			            
 			double dist = std::stod(std::string(dist_s));
 			
-			auto key_pair = std::make_pair(cat.FindStop(std::string(name)), cat.FindStop(std::string(stop)));
+			auto departure_stop = catalog.FindStop(std::string(name));
+			auto arrival_stop = catalog.FindStop(std::string(stop));
 			
-			cat.AddDistance(key_pair, dist);
+			catalog.SetDistance(departure_stop, arrival_stop, dist);
 		}
 		
 	}
 }
 
-void AddBusInCat(catalog::TransportCatalogue& cat, std::vector<std::string>& lines_with_buses) {
+void AddBusInCat(catalog::TransportCatalogue& catalog, const std::vector<std::string>& lines_with_buses) {
     for (auto& bus_line : lines_with_buses) {
         bool round = false;
         if (bus_line.find('>') != bus_line.npos) {
@@ -108,30 +110,30 @@ void AddBusInCat(catalog::TransportCatalogue& cat, std::vector<std::string>& lin
         }
         auto stops = detail::SplitIntoWords(stops_line, by);
  
-        cat.AddBus(name, stops, round);  
+        catalog.AddBus(name, stops, round);  
     }
 }
 
 
-void FillingCatalog(catalog::TransportCatalogue& cat) {
+void FillingCatalog(catalog::TransportCatalogue& catalog, std::istream& input) {
     int n = 0;
-    std::cin >> n;
+    input >> n;
     std::string s;
-    getline(std::cin, s);
+    getline(input, s);
     
     std::unordered_map<std::string, std::vector<std::string>> query_for_add;
 
     for (int i = 0; i < n; ++i) {
     std::string line;
-    getline(std::cin, line);
+    getline(input, line);
         auto [query_name, query_string] = detail::SeparateRequests(line, ' ');
             query_for_add[std::string(query_name)].push_back(std::string(query_string));        
     }
     
-    AddStopInCat(cat, query_for_add["Stop"]);
+    AddStopInCat(catalog, query_for_add["Stop"]);
 	
-	AddStopDistance(cat, query_for_add["Stop"]);
+	AddStopDistance(catalog, query_for_add["Stop"]);
     
-    AddBusInCat(cat, query_for_add["Bus"]);
+    AddBusInCat(catalog, query_for_add["Bus"]);
 }
 }

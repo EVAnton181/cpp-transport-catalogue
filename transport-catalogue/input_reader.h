@@ -33,11 +33,11 @@ std::vector<std::string_view> SplitIntoWords(const std::string_view text, char b
 }
 
 namespace filling{
-void AddStopInCat(catalog::TransportCatalogue& cat, std::vector<std::string>& lines_with_stops);
+void AddStopInCat(catalog::TransportCatalogue& catalog, std::vector<std::string>& lines_with_stops);
 
-void AddStopDistance(catalog::TransportCatalogue& cat, std::vector<std::string>& stop_distance_lines);
+void AddStopDistance(catalog::TransportCatalogue& catalog, const std::vector<std::string>& stop_distance_lines);
 
-void AddBusInCat(catalog::TransportCatalogue& cat, std::vector<std::string>& lines_with_buses);
+void AddBusInCat(catalog::TransportCatalogue& catalog, const std::vector<std::string>& lines_with_buses);
 
-void FillingCatalog(catalog::TransportCatalogue& cat);
+void FillingCatalog(catalog::TransportCatalogue& catalog, std::istream& input = std::cin);
 }

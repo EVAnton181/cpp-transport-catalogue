@@ -8,13 +8,10 @@
 int main() {
 //     DistanceTest();
     
-    std::ifstream in("/home/anton/yandex_praktikum/cpp-transport-catalogue/transport-catalogue/pt3/tsC_case1_input.txt");
-    std::cin.rdbuf(in.rdbuf());
+    catalog::TransportCatalogue catalog;
 
-    catalog::TransportCatalogue cat;
-
-    filling::FillingCatalog(cat);
-    statquery::Query(cat);
+    filling::FillingCatalog(catalog);
+    statquery::Query(catalog);
   
     return 0;
 }

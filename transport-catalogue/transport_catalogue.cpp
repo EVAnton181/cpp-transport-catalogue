@@ -2,7 +2,7 @@
 
 using namespace catalog;
 
-void TransportCatalogue::AddBus(std::string_view name, std::vector<std::string_view> stops_name, bool flag) {
+void TransportCatalogue::AddBus(std::string_view name, std::vector<std::string_view>& stops_name, bool flag) {
     std::vector<Stop*> ptr_stops;
     
     for (auto stop_name : stops_name) {
@@ -29,12 +29,14 @@ void TransportCatalogue::AddStop(std::string_view name, double lat, double lng) 
     
 }
 
-void TransportCatalogue::AddDistance(std::pair<Stop*, Stop*> key_pair, double distance) {
+void TransportCatalogue::SetDistance(Stop* departure_stop, Stop* arrival_stop, double distance) {
+	auto key_pair = std::make_pair(departure_stop, arrival_stop);
+	
 	distance_[key_pair] = distance;
 }
 
 
-TransportCatalogue::Stop* TransportCatalogue::FindStop(std::string name) {
+TransportCatalogue::Stop* TransportCatalogue::FindStop(const std::string& name) {
     if (stopname_to_stop_.count(name) != 0) {
         return stopname_to_stop_.at(name);
     }
@@ -43,7 +45,7 @@ TransportCatalogue::Stop* TransportCatalogue::FindStop(std::string name) {
     }
 }
 
-TransportCatalogue::Bus* TransportCatalogue::FindBus(std::string name) {
+TransportCatalogue::Bus* TransportCatalogue::FindBus(const std::string& name) {
     if (busname_to_bus_.count(name) != 0) {
         return busname_to_bus_.at(name);
     }
@@ -52,16 +54,18 @@ TransportCatalogue::Bus* TransportCatalogue::FindBus(std::string name) {
     }
 }
 
-std::tuple<int, int, double, double>  TransportCatalogue::GetBusInfo(std::string name) {
+TransportCatalogue::BusInfo TransportCatalogue::GetBusInfo(std::string name) {
     auto find_bus = FindBus(name);
-    int stops_on_route = 0;
-    int unique_stops = 0;
-    double route_length = 0;
-    double curvature = 0;
+	
+	BusInfo bus_info;
+	bus_info.stops_on_route = 0;
+    bus_info.unique_stops = 0;
+    bus_info.route_length = 0;
+    bus_info.curvature = 0;
         
     if (find_bus != nullptr) {
-        stops_on_route = find_bus->stops.size();
-        unique_stops = find_bus->uni_stops;
+        bus_info.stops_on_route = find_bus->stops.size();
+        bus_info.unique_stops = find_bus->uni_stops;
         
         double coordinate_lengh = 0;
         
@@ -70,10 +74,10 @@ std::tuple<int, int, double, double>  TransportCatalogue::GetBusInfo(std::string
             coordinate_lengh += ComputeDistance(find_bus->stops[i]->geo_point, find_bus->stops[i+1]->geo_point);
 
             if (distance_.count(std::make_pair(find_bus->stops[i], find_bus->stops[i+1]))) {
-                route_length += distance_.at(std::make_pair(find_bus->stops[i], find_bus->stops[i+1]));
+                bus_info.route_length += distance_.at(std::make_pair(find_bus->stops[i], find_bus->stops[i+1]));
             }
             else {
-                route_length += distance_.at(std::make_pair(find_bus->stops[i+1], find_bus->stops[i]));
+                bus_info.route_length += distance_.at(std::make_pair(find_bus->stops[i+1], find_bus->stops[i]));
             }
         }
         
@@ -81,21 +85,22 @@ std::tuple<int, int, double, double>  TransportCatalogue::GetBusInfo(std::string
         if (!(find_bus->round_trip)) {
             for (int i = find_bus->stops.size() - 1; i > 0; --i) {
                 if (distance_.count(std::make_pair(find_bus->stops[i], find_bus->stops[i-1]))) {
-                    route_length += distance_.at(std::make_pair(find_bus->stops[i], find_bus->stops[i-1]));
+                    bus_info.route_length += distance_.at(std::make_pair(find_bus->stops[i], find_bus->stops[i-1]));
                 }
                 else {
-                    route_length += distance_.at(std::make_pair(find_bus->stops[i-1], find_bus->stops[i]));
+                    bus_info.route_length += distance_.at(std::make_pair(find_bus->stops[i-1], find_bus->stops[i]));
                 }
             }
             
             coordinate_lengh *= 2; /// географическую длину увеличиваем в двое
-            stops_on_route = stops_on_route * 2 - 1; /// в общем количестве остановок учитываем обратные остановки
+            bus_info.stops_on_route = bus_info.stops_on_route * 2 - 1; /// в общем количестве остановок учитываем обратные остановки
         }
         
-        curvature = route_length/coordinate_lengh;
+        bus_info.curvature = bus_info.route_length/coordinate_lengh;
     }
 
-    return std::make_tuple(stops_on_route, unique_stops, route_length, curvature);
+    
+    return bus_info;
 }
 
 std::vector<std::string_view> TransportCatalogue::GetBusList(std::string name) {

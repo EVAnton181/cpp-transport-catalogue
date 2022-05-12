@@ -41,6 +41,15 @@ namespace catalog {
         struct Bus;
         
     public:
+		struct BusInfo {
+			int stops_on_route;
+			int unique_stops;
+			double route_length;
+			double curvature;
+			
+// 			BusInfo()
+		};
+		
         TransportCatalogue() {}
         
         /*!
@@ -52,7 +61,8 @@ namespace catalog {
          * 
          * @return None
         */
-        void AddBus(std::string_view name, std::vector<std::string_view> stops_name, bool flag);
+		// Передать stops_name по константной ссылке не могу, так как в данном методе для получения колличества уникальных остановок применяю алгоритм std::unique который модифицирует вектор
+        void AddBus(std::string_view name, std::vector<std::string_view>& stops_name, bool flag);
         
         /*!
          * Добавляет новую остановку в каталог
@@ -63,6 +73,7 @@ namespace catalog {
          * 
          * @return None
         */
+		// В модул geo.h добавил конструктор, который создает структуру из двух double, а добавляющий не знает как храняться данные, он просто передает широту и долготу
         void AddStop(std::string_view name, double lat, double lng);
         
 		/*!
@@ -73,7 +84,7 @@ namespace catalog {
          * 
          * @return None
         */
-        void AddDistance(std::pair<Stop*, Stop*> key_pair, double distance);
+        void SetDistance(Stop* departure_stop, Stop* arrival_stop, double distance);
 		
         /*!
          * Ищет информацию об остановке в каталоге
@@ -82,7 +93,7 @@ namespace catalog {
          * 
          * @return Ссылку на структуру с описанием остановки
         */
-        Stop* FindStop(std::string name);
+        Stop* FindStop(const std::string& name);
                 
         /*!
          * Ищет информацию о маршруте в каталоге
@@ -91,7 +102,7 @@ namespace catalog {
          * 
          * @return Ссылку на структуру с описанием маршрута, если маршрут не найден - nullptr
         */
-        Bus* FindBus(std::string name);
+        Bus* FindBus(const std::string& name);
         
         /*!
          * Преобразует данные о маршруте "name" в общее кол-во сотановок, 
@@ -102,7 +113,7 @@ namespace catalog {
          * @return tuple: кол-во остановок на маршруте, кол-во уникальних остановок, длину маршрута, "кривизну маршрута"
          * 
          */
-        std::tuple<int, int, double, double>  GetBusInfo(std::string name);
+        BusInfo GetBusInfo(std::string name);
         
         /*!
          * Получает список маршрутов проходящих через заданную остановку

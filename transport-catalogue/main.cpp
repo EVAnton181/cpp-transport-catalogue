@@ -1,17 +1,22 @@
 #include <fstream>
+#include <iostream>
+#include <chrono>
+#include <string>
 
 #include "transport_catalogue.h"
-#include "input_reader.h"
-#include "stat_reader.h"
-// #include "test_functions.h"
+#include "json_reader.h"
+#include "map_renderer.h"
+
+// #include "log_duration.h"
 
 int main() {
-//     DistanceTest();
-    
+// 	для gdb
+// 	std::ifstream in("input.json");
+//     std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
     catalog::TransportCatalogue catalog;
+	map_renderer::MapRanderer map;
 
-    filling::FillingCatalog(catalog);
-    statquery::Query(catalog);
-  
+	LoadJSON(catalog, map);
+	
     return 0;
 }

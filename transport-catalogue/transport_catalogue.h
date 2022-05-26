@@ -21,10 +21,10 @@
 #include <algorithm>
 #include <unordered_set>
 
-
 #include <iostream>
 
-#include "geo.h"
+
+#include "domain.h"
 
 namespace catalog {
 /*!
@@ -35,20 +35,22 @@ namespace catalog {
  * автобусных маршрутах.
  * Данный класс не работает с вводом и выводом.
  */
+    using KeyStops = std::pair<domain::Stop*, domain::Stop*>;
+
     class TransportCatalogue {
-    private:
-        struct Stop;
-        struct Bus;
+//     private:
+//         struct Stop;
+//         struct Bus;
         
     public:
-		struct BusInfo {
-			int stops_on_route;
-			int unique_stops;
-			double route_length;
-			double curvature;
-			
-// 			BusInfo()
-		};
+// 		struct BusInfo {
+// 			int stops_on_route;
+// 			int unique_stops;
+// 			double route_length;
+// 			double curvature;
+// 			
+// // 			BusInfo()
+// 		};
 		
         TransportCatalogue() {}
         
@@ -79,12 +81,13 @@ namespace catalog {
 		/*!
          * Добавляет расстояние между остановками в контейнер с расстояниями
          * 
-         * @param key_pair ключ из указателей на остановки между которыми определена дистанция
-         * @param distance растояние между остановками
+         * @param departure_stop остановка отправлния 
+		 * @param arrival_stop остановка прибытия
+		 * @param distance растояние между остановками
          * 
          * @return None
         */
-        void SetDistance(Stop* departure_stop, Stop* arrival_stop, double distance);
+        void SetDistance(domain::Stop* departure_stop, domain::Stop* arrival_stop, double distance);
 		
         /*!
          * Ищет информацию об остановке в каталоге
@@ -93,7 +96,7 @@ namespace catalog {
          * 
          * @return Ссылку на структуру с описанием остановки
         */
-        Stop* FindStop(const std::string& name);
+        domain::Stop* FindStop(const std::string& name);
                 
         /*!
          * Ищет информацию о маршруте в каталоге
@@ -102,7 +105,7 @@ namespace catalog {
          * 
          * @return Ссылку на структуру с описанием маршрута, если маршрут не найден - nullptr
         */
-        Bus* FindBus(const std::string& name);
+        domain::Bus* FindBus(const std::string_view& name) const;
         
         /*!
          * Преобразует данные о маршруте "name" в общее кол-во сотановок, 
@@ -113,7 +116,7 @@ namespace catalog {
          * @return tuple: кол-во остановок на маршруте, кол-во уникальних остановок, длину маршрута, "кривизну маршрута"
          * 
          */
-        BusInfo GetBusInfo(std::string name);
+        domain::BusStat GetBusInfo(std::string name);
         
         /*!
          * Получает список маршрутов проходящих через заданную остановку
@@ -125,40 +128,55 @@ namespace catalog {
          */
         std::vector<std::string_view> GetBusList(std::string name);
         
-    private:
-        /// Структура хранит информацию об остановке
-        struct Stop {
-            std::string stop_name;
-            Coordinates geo_point;
-            
-            Stop(std::string p_name, double p_latitude, double p_longitude)
-                : stop_name(std::move(p_name)), geo_point(p_latitude, p_longitude) {
-                }
-        };
+        /*!
+         * Возвращает расстояние между остановками
+         * 
+         * @param stop1 Указатель на остановку от которой ищем расстояние
+         * @param stop2 Указатель на остановку до которой ищем расстояние
+         * 
+         * @return Если в массиве расстояний записано расстояние, то возвращаем его, в противном случае nullptr.
+         * 
+         */
+        std::optional<double> GetDistance(domain::Stop* stop1, domain::Stop* stop2) const;
         
-        std::deque<Stop> stops_; /// Список всех остановок
-        std::unordered_map<std::string_view, Stop*> stopname_to_stop_; /// Контейнер для быстрого поиска остановки по названию
+		/*!
+         * Возвращает список названий маршрутов проходящих через заданную остановку
+         * 
+         * @param stop_name Имя остановки, в которой ищутся проходящие маршруты
+         * 
+         * @return список имен остановок
+         * 
+         */
+		const std::unordered_set<std::string_view>* GetBusesSet(const std::string_view& stop_name) const;
+		
+		/*!
+         * Возвращает расстояние между остановками
+         * 
+         * @return set с указателями на маршруты, в коротых есть хотябы одна остановка
+         * 
+         */
+        std::unordered_set<const domain::Bus*> GetBusToRender() const;
+		
+		/*!
+         * Возвращает остановки через которые проходит хотябы один маршрут
+         * 
+         * @return set с указателями на остановки входящие хотябы в один маршрут
+         * 
+         */
+		std::unordered_set<const domain::Stop*> GetStopToRender() const;
+    private:
+    
+        std::deque<domain::Stop> stops_; /// Список всех остановок
+        std::unordered_map<std::string_view, domain::Stop*> stopname_to_stop_; /// Контейнер для быстрого поиска остановки по названию
         
         std::unordered_map<std::string_view, std::unordered_set<std::string_view>> stopname_to_buses_; /// set имен маршрутов, от имени остановки
-        
-        /// Структура хранит информацию о маршрутах
-        struct Bus {
-            std::string bus;
-            std::vector<Stop*> stops;
-            bool round_trip;
-            int uni_stops;
-            
-            Bus(std::string p_bus, std::vector<Stop*> p_stops, bool p_flag, int p_uni) 
-                : bus(std::move(p_bus)), stops(std::move(p_stops)), round_trip(p_flag), uni_stops(p_uni) {
-            }
-        };
  
-        std::deque<Bus> buses_;    /// Список всех маршрутов
-        std::unordered_map<std::string_view, Bus*> busname_to_bus_; /// Контейнер для быстрого поиска маршрутов по названию
+        std::deque<domain::Bus> buses_;    /// Список всех маршрутов
+        std::unordered_map<std::string_view, domain::Bus*> busname_to_bus_; /// Контейнер для быстрого поиска маршрутов по названию
         
         /// Хэшер для пары указателей
         struct pair_hash {
-            size_t operator() (const std::pair<Stop*, Stop*> &p) const {
+            size_t operator() (const std::pair<domain::Stop*, domain::Stop*> &p) const {
                 auto h1 = std::hash<const void*>{}(p.first);
                 auto h2 = std::hash<const void*>{}(p.second);
                 
@@ -166,7 +184,7 @@ namespace catalog {
             }
         };
         
-        using KeyStops = std::pair<Stop*, Stop*>;
+        using KeyStops = std::pair<domain::Stop*, domain::Stop*>;
         std::unordered_map<KeyStops, double, pair_hash> distance_; /// Контейнер с дистанциями между остановками
        
     };

@@ -111,12 +111,12 @@ namespace catalog {
          * Преобразует данные о маршруте "name" в общее кол-во сотановок, 
          * кол-во уникальных остановок и длину маршрута и "кривизну" маршрута
          * 
-         * @param[in] name Имя маршрута, который необходимо найти
+         * @param[in] bus_name Имя маршрута, который необходимо найти
          * 
          * @return tuple: кол-во остановок на маршруте, кол-во уникальних остановок, длину маршрута, "кривизну маршрута"
          * 
          */
-        domain::BusStat GetBusInfo(std::string name);
+        std::optional<domain::BusStat> GetBusStat(const std::string_view& bus_name) const;
         
         /*!
          * Получает список маршрутов проходящих через заданную остановку
@@ -126,7 +126,7 @@ namespace catalog {
          * @return вектор с названиями маршрутов
          * 
          */
-        std::vector<std::string_view> GetBusList(std::string name);
+        std::optional<std::vector<std::string_view>> GetBusesByStop(const std::string_view& stop_name) const;
         
         /*!
          * Возвращает расстояние между остановками
@@ -147,15 +147,40 @@ namespace catalog {
          * @return список имен остановок
          * 
          */
-		const std::unordered_set<std::string_view>* GetBusesSet(const std::string_view& stop_name) const;
+// 		const std::unordered_set<std::string_view>* GetBusesSet(const std::string_view& stop_name) const;
 		
 		/*!
-         * Возвращает расстояние между остановками
+         * Возвращает отсортированный список маршрутов, в которые входит хотябы одна остановка
+         * 
+         * @return отсортированный vector с указателями на маршруты, в коротых есть хотябы одна остановка
+         * 
+         */
+		std::vector<const domain::Bus*> GetSortBusesToRender() const;
+		
+		/*!
+         * Возвращает список маршрутов, в которые входит хотябы одна остановка
          * 
          * @return set с указателями на маршруты, в коротых есть хотябы одна остановка
          * 
          */
-        std::unordered_set<const domain::Bus*> GetBusToRender() const;
+        std::unordered_set<const domain::Bus*> GetBusesToRender() const;
+		
+		
+		/*!
+         * Возвращает вектор координат остановкок через которые проходит хотябы один маршрут
+         * 
+         * @return отсортированный vector координат остановкок через которые проходит хотябы один маршрут
+         * 
+         */
+		std::vector<geo::Coordinates> GetAllRenderGeoCoordinates() const;
+		
+		/*!
+         * Возвращает отсортированный вектор остановкок через которые проходит хотябы один маршрут
+         * 
+         * @return отсортированный vector с указателями на остановки входящие хотябы в один маршрут
+         * 
+         */
+		std::vector<const domain::Stop*> GetSortStopsToRender() const;
 		
 		/*!
          * Возвращает остановки через которые проходит хотябы один маршрут
@@ -163,7 +188,7 @@ namespace catalog {
          * @return set с указателями на остановки входящие хотябы в один маршрут
          * 
          */
-		std::unordered_set<const domain::Stop*> GetStopToRender() const;
+		std::unordered_set<const domain::Stop*> GetStopsToRender() const;
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок

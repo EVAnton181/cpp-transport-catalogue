@@ -3,42 +3,10 @@
 using namespace std;
 
 namespace json {
-
-Node::Node(void)
-    : value_(nullptr) {
-}
-
-Node::Node(nullptr_t null)
-    : value_(null) {
-}
-
-Node::Node(Array array)
-    : value_(move(array)) {
-}
-
-Node::Node(Dict map)
-    : value_(move(map)) {
-}
-
-Node::Node(bool b)
-    : value_(move(b)) {
-}
-
-Node::Node(int value)
-    : value_(value) {
-}
-
-Node::Node(double value)
-    : value_(move(value)) {
-}
-
-Node::Node(string value)
-    : value_(move(value)) {
-}
 	
 bool Node::operator== (const Node& other) const
 {
-    return (this->value_ == other.value_);
+    return (*this == other);
 }
  
 bool Node::operator!= (const Node& other) const
@@ -47,14 +15,14 @@ bool Node::operator!= (const Node& other) const
 }
 	
 bool Node::IsInt() const {
-	if (holds_alternative<int>(value_)) {
+	if (holds_alternative<int>(*this)) {
 		return true;
 	}
 	return false;
 }
 
 bool Node::IsDouble() const {
-	if (holds_alternative<double>(value_) || holds_alternative<int>(value_)) {
+	if (holds_alternative<double>(*this) || holds_alternative<int>(*this)) {
 		return true;
 	}
 	return false;
@@ -62,7 +30,7 @@ bool Node::IsDouble() const {
 
 ///Возвращает true, если в Node хранится int либо double.
 bool Node::IsPureDouble() const {
-	if (holds_alternative<double>(value_)) {
+	if (holds_alternative<double>(*this)) {
 		return true;
 	}
 	return false;
@@ -70,43 +38,47 @@ bool Node::IsPureDouble() const {
 
 ///Возвращает true, если в Node хранится double.
 bool Node::IsBool() const {
-	if (holds_alternative<bool>(value_)) {
+	if (holds_alternative<bool>(*this)) {
 		return true;
 	}
 	return false;
 }
 
 bool Node::IsString() const {
-	if (holds_alternative<std::string>(value_)) {
+	if (holds_alternative<std::string>(*this)) {
 		return true;
 	}
 	return false;
 }
 
 bool Node::IsNull() const {
-	if (holds_alternative<std::nullptr_t>(value_)) {
+	if (holds_alternative<std::nullptr_t>(*this)) {
 		return true;
 	}
 	return false;
 }
 
 bool Node::IsArray() const {
-	if (holds_alternative<Array>(value_)) {
+	if (holds_alternative<Array>(*this)) {
 		return true;
 	}
 	return false;
 }
 
 bool Node::IsMap() const {
-	if (holds_alternative<Dict>(value_)) {
+	if (holds_alternative<Dict>(*this)) {
 		return true;
 	}
 	return false;
 }
 
+const NodeVal& Node::GetValue() const { 
+	return *this; 
+}
+
 int Node::AsInt() const {
 	if (IsInt()) {
-		return std::get<int>(value_);
+		return std::get<int>(*this);
 	}
 	else {
 		throw std::logic_error("other type");
@@ -115,7 +87,7 @@ int Node::AsInt() const {
 
 bool Node::AsBool() const {
 	if (IsBool()) {
-		return std::get<bool>(value_);
+		return std::get<bool>(*this);
 	}
 	else {
 		throw std::logic_error("other type");
@@ -125,9 +97,9 @@ bool Node::AsBool() const {
 double Node::AsDouble() const {
 	if (IsDouble()) {
 		if (IsInt()) {
-			return std::get<int>(value_);
+			return std::get<int>(*this);
 		}
-		return std::get<double>(value_);
+		return std::get<double>(*this);
 	}
 	else {
 		throw std::logic_error("other type");	
@@ -136,7 +108,7 @@ double Node::AsDouble() const {
 
 const std::string& Node::AsString() const {
 	if (IsString()) {
-		return std::get<std::string>(value_);
+		return std::get<std::string>(*this);
 	}
 	else {
 		throw std::logic_error("other type");	}
@@ -144,7 +116,7 @@ const std::string& Node::AsString() const {
 
 const Array& Node::AsArray() const {
     if (IsArray()) {
-		return std::get<Array>(value_);
+		return std::get<Array>(*this);
 	}
 	else {
 		throw std::logic_error("other type");
@@ -153,7 +125,7 @@ const Array& Node::AsArray() const {
 
 const Dict& Node::AsMap() const {
     if (IsMap()) {
-		return std::get<Dict>(value_);
+		return std::get<Dict>(*this);
 	}
 	else {
 		throw std::logic_error("other type");
@@ -424,7 +396,6 @@ Node LoadNode(istream& input) {
 	}
 }
 
-
 Document::Document(Node root)
     : root_(move(root)) {
 }
@@ -445,24 +416,72 @@ Document Load(istream& input) {
     return Document{LoadNode(input)};
 }
 
-// int, double
-template <typename Value>
-void PrintValue(const Value& value, const RenderContext& context) {
-	auto& out = context.out;
-	out << value;
-}
-
-// Перегрузка функции PrintValue для вывода значений null
-void PrintValue(std::nullptr_t, const RenderContext& context) {
+void NodePrintValue::operator()(std::nullptr_t) const {
 	auto& out = context.out;
 	out << "null"sv;
 }
 
-// string
-void PrintValue(const std::string& st, const RenderContext& context) {
+void NodePrintValue::operator()(const Array& value) const {
 	auto& out = context.out;
-	auto it = st.begin();
-	auto end = st.end();
+	out << '[' << '\n';
+	context.RenderIndent();
+	bool first = true;
+	for (auto a : value) {
+		if (!first) {
+			out << ',' << '\n';
+			context.RenderIndent();
+		}
+		first = false;
+		PrintNode(a, out);
+	}
+	context.RenderIndent();
+	out << '\n' << ']';
+}
+
+void NodePrintValue::operator()(const Dict& value) const {
+	auto& out = context.out;
+	out << "{" << '\n';
+	context.RenderIndent();
+	bool first = true;
+	for (const auto& [key, val] : value) {
+		if (!first) {
+			out << ", " << '\n';
+			context.RenderIndent();
+		}
+		first = false;
+        out << '"' << key << "\": "; /*<< value << "; ";*/
+		PrintNode(val, out);
+    }
+	out << '\n';
+	context.RenderIndent();
+    out << "}";
+}
+
+void NodePrintValue::operator()(const int& value) const {
+	auto& out = context.out;
+	out << value;
+}
+
+void NodePrintValue::operator()(const bool& value) const {
+	auto& out = context.out;
+
+	if (value) {
+		out << "true";
+	} 
+	else {
+		out << "false";
+	}
+}
+
+void NodePrintValue::operator()(const double& value) const {
+	auto& out = context.out;
+	out << value;
+}
+
+void NodePrintValue::operator()(const std::string& value) const {
+	auto& out = context.out;
+	auto it = value.begin();
+	auto end = value.end();
 	out << '"';
 	while (true) {
 		if (it == end) {
@@ -493,61 +512,9 @@ void PrintValue(const std::string& st, const RenderContext& context) {
 	out << '"';
 }
 
-// bool
-void PrintValue(const bool b, const RenderContext& context) {
-	auto& out = context.out;
-
-	if (b) {
-		out << "true";
-	} 
-	else {
-		out << "false";
-	}
-}
-
-// Array
-void PrintValue(const Array& array, const RenderContext& context) {
-	auto& out = context.out;
-	out << '[' << '\n';
-	context.RenderIndent();
-	bool first = true;
-	for (auto a : array) {
-		if (!first) {
-			out << ',' << '\n';
-			context.RenderIndent();
-		}
-		first = false;
-		PrintNode(a, out);
-	}
-	context.RenderIndent();
-	out << '\n' << ']';
-}
-
-// Array
-void PrintValue(const Dict& dict, const RenderContext& context) {
-	auto& out = context.out;
-	out << "{" << '\n';
-	context.RenderIndent();
-	bool first = true;
-	for (const auto& [key, value] : dict) {
-		if (!first) {
-			out << ", " << '\n';
-			context.RenderIndent();
-		}
-		first = false;
-        out << '"' << key << "\": "; /*<< value << "; ";*/
-		PrintNode(value, out);
-    }
-	out << '\n';
-	context.RenderIndent();
-    out << "}";
-}
-
 void PrintNode(const Node& node, std::ostream& out) {
 	RenderContext context(out, 2, 2);
-    std::visit(
-        [&context](const auto& value){ PrintValue(value, context); },
-        node.GetValue());
+	std::visit(NodePrintValue{context}, node.GetValue());
 } 
 
 

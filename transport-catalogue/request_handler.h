@@ -20,7 +20,6 @@ public:
 		, renderer_(renderer)
 	{
 	}
-
     // Возвращает информацию о маршруте (запрос Bus)
     const std::optional<domain::BusStat> GetBusStat(const std::string_view& bus_name) const;
 

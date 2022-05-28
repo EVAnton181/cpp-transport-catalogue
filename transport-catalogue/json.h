@@ -7,8 +7,6 @@
  * @brief Заголовочный файл с классами и функциями для работы с 
  * json
  * 
- * 
- * 
 */
 #pragma once
 
@@ -59,22 +57,11 @@ public:
     using runtime_error::runtime_error;
 };
 
-class Node {
+using NodeVal = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
+
+class Node final : public NodeVal {
 public:
-	using NodeVal = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
-   /* Реализуйте Node, используя std::variant */
-/*
-	template <typename Value>
-	Node(Value value) : value_(std::move(value)) {}*/
-	Node();
-	Node(nullptr_t null);
-    Node(Array array);
-    Node(Dict map);
-	Node(bool value);
-    Node(int value);
-    Node(double value);
-	Node(std::string value);
-	
+
 	bool operator== (const Node& rhs) const;
 	bool operator!= (const Node& rhs) const;
 
@@ -87,7 +74,7 @@ public:
 	bool IsArray() const;
 	bool IsMap() const;
 	
-	const NodeVal& GetValue() const { return value_; }
+	const NodeVal& GetValue() const;
 	
 	int AsInt() const;
 	bool AsBool() const;
@@ -96,10 +83,8 @@ public:
 	const Array& AsArray() const;
 	const Dict& AsMap() const;
 	
-
-		
 private:
-	NodeVal value_;
+	using variant::variant;
 };
 
 class Document {
@@ -116,19 +101,17 @@ private:
 
 Document Load(std::istream& input);
 
-// int, double
-template <typename Value>
-void PrintValue(const Value& value, const RenderContext& context);
-// Перегрузка функции PrintValue для вывода значений null
-void PrintValue(std::nullptr_t, const RenderContext& context);
-// string
-void PrintValue(const std::string& st, const RenderContext& context);
-// bool
-void PrintValue(const bool b, const RenderContext& context);
-// Array
-void PrintValue(const Array& array, const RenderContext& context);
-// Dict
-void PrintValue(const Dict& dict, const RenderContext& context);
+struct NodePrintValue {
+    RenderContext& context;
+
+    void operator()(std::nullptr_t) const;
+    void operator()(const Array& value) const;
+    void operator()(const Dict& value) const;
+    void operator()(const int& value) const;
+    void operator()(const bool& value) const;
+    void operator()(const double& value) const;
+    void operator()(const std::string& value) const;
+};
 
 void PrintNode(const Node& node, std::ostream& out);
 

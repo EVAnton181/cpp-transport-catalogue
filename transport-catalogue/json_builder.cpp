@@ -73,9 +73,9 @@ BaseItemContext Builder::EndDict()
 ArrayItemContext Builder::StartArray()
 {
     AddCollection(json::Array());
-    
-	ArrayItemContext item_array{*this};
-	return item_array;
+
+    ArrayItemContext item_array{*this};
+    return item_array;
 }
 
 BaseItemContext Builder::EndArray()
@@ -213,6 +213,7 @@ BaseItemContext DictItemContext::EndDict()
 {
     build_.EndDict();
     return BaseItemContext{*this};
+<<<<<<< HEAD
 }
 
 KeyItemContext DictItemContext::Key(std::string key)
@@ -259,6 +260,54 @@ BaseItemContext ArrayItemContext::EndArray()
 
 ArrayItemContext ArrayItemContext::Value(Node::Value value)
 {
+=======
+}
+
+KeyItemContext DictItemContext::Key(std::string key)
+{
+    build_.Key(key);
+    return KeyItemContext{*this};
+}
+
+DictItemContext KeyItemContext::StartDict()
+{
+    build_.StartDict();
+    return DictItemContext{*this};
+}
+
+ArrayItemContext KeyItemContext::StartArray()
+{
+    build_.StartArray();
+    return ArrayItemContext{*this};
+}
+
+DictItemContext KeyItemContext::Value(Node::Value value)
+{
+    build_.Value(value);
+    return DictItemContext{*this};
+}
+
+DictItemContext ArrayItemContext::StartDict()
+{
+    build_.StartDict();
+    return DictItemContext{*this};
+}
+    
+ArrayItemContext ArrayItemContext::StartArray()
+{
+    build_.StartArray();
+    return *this;
+}
+
+BaseItemContext ArrayItemContext::EndArray()
+{
+    build_.EndArray();
+    return BaseItemContext{*this};
+}
+
+ArrayItemContext ArrayItemContext::Value(Node::Value value)
+{
+>>>>>>> 73d4cb78afc15ef432bd8ef041b53877263d01e0
     build_.Value(value);
     return *this;
 }

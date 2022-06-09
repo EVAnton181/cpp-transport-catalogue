@@ -24,7 +24,7 @@
 
 namespace map_renderer {
 
-
+/// Структура с настройками рендера
 struct RenderSettings {
 	double width;  // ширина области рисования в пикселях
 	double height;  // высота области рисования в пикселях

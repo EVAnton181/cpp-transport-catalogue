@@ -1,3 +1,14 @@
+/*!
+ * @file request_handler.h
+ * @author Elistratov Anton
+ * @date Май 2022
+ * @version 1.0
+ * 
+ * @brief Заголовочный файл с интерфейсом для работы с TransportCatalogue
+ * и MapRanderer
+ * 
+ * 
+*/
 #pragma once
 
 #include <tuple>
@@ -8,10 +19,9 @@
 
 #include "transport_catalogue.h"
 #include "map_renderer.h"
-// #include "input_reader.h"
 #include "domain.h"
 
-#include "log_duration.h"
+// #include "log_duration.h"
 
 class RequestHandler {
 public:
@@ -26,7 +36,6 @@ public:
     // Возвращает маршруты, проходящие через
     const std::optional<std::vector<std::string_view>> GetBusesByStop(const std::string_view& stop_name) const;
         
-    // Этот метод будет нужен в следующей части итогового проекта
     void MakeRenderMap();
 
 	void RenderMap(std::ostream& out = std::cout) const;

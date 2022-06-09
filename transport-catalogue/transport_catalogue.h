@@ -38,19 +38,7 @@ namespace catalog {
     using KeyStops = std::pair<domain::Stop*, domain::Stop*>;
 
     class TransportCatalogue {
-//     private:
-//         struct Stop;
-//         struct Bus;
-        
     public:
-// 		struct BusInfo {
-// 			int stops_on_route;
-// 			int unique_stops;
-// 			double route_length;
-// 			double curvature;
-// 			
-// // 			BusInfo()
-// 		};
 		
         TransportCatalogue() {}
         

@@ -1,3 +1,12 @@
+/*!
+ * @file domain.h
+ * @author Elistratov Anton
+ * @date Май 2022
+ * @version 1.0
+ * 
+ * @brief Заголовочный файл с описанием структур остановок, маршрутов и статистики маршрута
+ * 
+*/
 #pragma once
 
 #include <string>

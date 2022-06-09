@@ -10,18 +10,17 @@ Builder::Builder()
 	nodes_stack_.emplace_back(&root_);
 }
 
-DictItemContext Builder::StartDict()
+void Builder::AddCollection(Node collection)
 {
     if (nodes_stack_.empty())
     {
         throw LogicError("Build was finished"s);	
     }
-
     
     if (nodes_stack_.back()->IsArray())
 	{
 		nodes_stack_.back()->AsArray().emplace_back();
-		nodes_stack_.back()->AsArray().back().GetValue() = json::Dict();
+		nodes_stack_.back()->AsArray().back().GetValue() = collection.GetValue();
 		nodes_stack_.emplace_back(&nodes_stack_.back()->AsArray().back());
 	}
 	else if (nodes_stack_.back()->IsDict())
@@ -30,18 +29,22 @@ DictItemContext Builder::StartDict()
         {
             throw LogicError("Value without key"s);
         }
-		nodes_stack_.back()->AsDict().at(keys_.back()).GetValue() = json::Dict();
+		nodes_stack_.back()->AsDict().at(keys_.back()).GetValue() = collection.GetValue();
 		nodes_stack_.emplace_back(&nodes_stack_.back()->AsDict().at(keys_.back()));
 		keys_.clear();
 	}
 	else
 	{
-		nodes_stack_.back()->GetValue()=json::Dict();
+		nodes_stack_.back()->GetValue() = collection.GetValue();
 	}
+}
+
+DictItemContext Builder::StartDict()
+{
+    AddCollection(json::Dict());
 
 	DictItemContext dict{*this};
 	return dict;
-// 	return *this;
 }
 	
 BaseItemContext Builder::EndDict()
@@ -62,39 +65,15 @@ BaseItemContext Builder::EndDict()
 	}
     
     nodes_stack_.pop_back();
-	    
-	BaseItemContext base{*this};
+    
+    BaseItemContext base{*this};
 	return base;
 }
 
 ArrayItemContext Builder::StartArray()
 {
-    if (nodes_stack_.empty())
-    {
-        throw LogicError("Build was finished"s);	
-    }
+    AddCollection(json::Array());
     
-    if (nodes_stack_.back()->IsArray())
-	{
-		nodes_stack_.back()->AsArray().emplace_back();
-		nodes_stack_.back()->AsArray().back().GetValue() = json::Array();
-		nodes_stack_.emplace_back(&nodes_stack_.back()->AsArray().back());
-	}
-	else if (nodes_stack_.back()->IsDict())
-	{
-        if (keys_.empty())
-		{
-	  		throw LogicError("Value without key"s);
-		}
-		nodes_stack_.back()->AsDict().at(keys_.back()).GetValue() = json::Array();
-		nodes_stack_.emplace_back(&nodes_stack_.back()->AsDict().at(keys_.back()));
-		keys_.clear();
-	}
-	else
-	{
-		nodes_stack_.back()->GetValue()=json::Array();
-	}
-
 	ArrayItemContext item_array{*this};
 	return item_array;
 }
@@ -125,55 +104,52 @@ KeyItemContext Builder::Key(std::string key)
     }
     
     if (!nodes_stack_.back()->IsDict())
-	{
-		throw LogicError("Dict is not started"s);
-	}
-	
+    {
+        throw LogicError("Dict is not started"s);
+    }
+
     if (!keys_.empty())
-	{
-		throw LogicError("Key without value"s);
-	}
+    {
+        throw LogicError("Key without value"s);
+    }
     
 	keys_.push_back(key);
     
     nodes_stack_.back()->AsDict()[key];
     
-//     KeyItemContext
-    	KeyItemContext item_key{*this};
+   	KeyItemContext item_key{*this};
 	return item_key;
-// 	return *this;
 }
 
 ValueItemContext Builder::Value(Node::Value value) 
 {
-	if (nodes_stack_.empty())
+    if (nodes_stack_.empty())
     {
         throw LogicError("Build was finished"s);	
     }
     
-	if (nodes_stack_.back()->IsNull() && nodes_stack_.size() == 1)
-	{
-		nodes_stack_.back()->GetValue() = value;
-		nodes_stack_.clear();
-	}
-	else if (nodes_stack_.back()->IsArray())
-	{
-		nodes_stack_.back()->AsArray().emplace_back();
-		nodes_stack_.back()->AsArray().back().GetValue() = value;
-	}
-	else if (nodes_stack_.back()->IsDict())
-	{
-		if (keys_.empty())
-		{
-	  		throw LogicError("Value without key"s);
-		}
+    if (nodes_stack_.back()->IsNull() && nodes_stack_.size() == 1)
+    {
+        nodes_stack_.back()->GetValue() = value;
+    nodes_stack_.clear();
+    }
+    else if (nodes_stack_.back()->IsArray())
+    {
+        nodes_stack_.back()->AsArray().emplace_back();
+        nodes_stack_.back()->AsArray().back().GetValue() = value;
+    }
+    else if (nodes_stack_.back()->IsDict())
+    {
+        if (keys_.empty())
+        {
+            throw LogicError("Value without key"s);
+        }
         nodes_stack_.back()->AsDict().at(keys_.back()).GetValue() = value;
-		keys_.clear();
-	}
-	
-	ValueItemContext base{*this};
+        keys_.clear();
+    }
+    
+    ValueItemContext base{*this};
     return base;
-// 	return *this;
 }
 
 json::Node Builder::Build()
@@ -233,29 +209,58 @@ json::Node BaseItemContext::Build()
     return build_.Build();
 }
 
+BaseItemContext DictItemContext::EndDict()
+{
+    build_.EndDict();
+    return BaseItemContext{*this};
 }
 
-// KeyItemContext DictItemContext::Key(std::string key)
-// {
-//     build_.Key(key);
-//     return KeyItemContext{*this};
-// }
-
-// ArrayItemContext KeyItemContext::StartArray()
-// {
-//     build_.StartArray();
-//     return ArrayItemContext{*this};
-// }
-// DictItemContext KeyItemContext::Value(Node::Value value)
-// {
-//     build_.Value(value);
-//     return DictItemContext{*this};
-// }
-
-
-
-/*
-DictItemContext::DictItemContext(Builder& build)
-    : build_(build)
+KeyItemContext DictItemContext::Key(std::string key)
 {
-}*/
+    build_.Key(key);
+    return KeyItemContext{*this};
+}
+
+DictItemContext KeyItemContext::StartDict()
+{
+    build_.StartDict();
+    return DictItemContext{*this};
+}
+
+ArrayItemContext KeyItemContext::StartArray()
+{
+    build_.StartArray();
+    return ArrayItemContext{*this};
+}
+
+DictItemContext KeyItemContext::Value(Node::Value value)
+{
+    build_.Value(value);
+    return DictItemContext{*this};
+}
+
+DictItemContext ArrayItemContext::StartDict()
+{
+    build_.StartDict();
+    return DictItemContext{*this};
+}
+    
+ArrayItemContext ArrayItemContext::StartArray()
+{
+    build_.StartArray();
+    return *this;
+}
+
+BaseItemContext ArrayItemContext::EndArray()
+{
+    build_.EndArray();
+    return BaseItemContext{*this};
+}
+
+ArrayItemContext ArrayItemContext::Value(Node::Value value)
+{
+    build_.Value(value);
+    return *this;
+}
+
+} //namespace json

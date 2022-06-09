@@ -21,7 +21,6 @@ class KeyItemContext;
 class DictItemContext;
 class DictValueItemContext;
 class ArrayItemContext;
-
 	
 class Builder {
 public:
@@ -46,6 +45,8 @@ private:
 	Node root_;
 	std::vector<Node*> nodes_stack_;
     std::vector<std::string> keys_;
+    
+    void AddCollection(Node collection);
 };
 	
 
@@ -57,22 +58,24 @@ public:
     
     BaseItemContext StartDict();
     
-	BaseItemContext EndDict();
+    BaseItemContext EndDict();
     
-	BaseItemContext StartArray();
+    BaseItemContext StartArray();
     
-	BaseItemContext EndArray();
-		
-	BaseItemContext Key(std::string key);
-	
-	BaseItemContext Value(Node::Value value);
+    BaseItemContext EndArray();
+
+    BaseItemContext Key(std::string key);
+
+    BaseItemContext Value(Node::Value value);
     
     json::Node Build();
 
     Builder& build_;
 };
 
-//праввило 3
+// В данном классе не запрещен метод Biuld()
+// Он просто не переопределен относительно метода Build() для BaseItemContext
+// Объект данного класса возвращается когда метод Value был вызван сразу после создания Builder'a
 class ValueItemContext : public BaseItemContext {
 public:
     ValueItemContext StartDict() = delete;
@@ -92,91 +95,51 @@ class DictItemContext : public BaseItemContext {
 public:
     DictItemContext StartDict() = delete;
     
-	BaseItemContext EndDict()
-    {
-        build_.EndDict();
-        return BaseItemContext{*this};
-    }
+	BaseItemContext EndDict();
     
 	DictItemContext StartArray() = delete;
     
 	DictItemContext EndArray() = delete;
 		
-	KeyItemContext Key(std::string key)
-    {
-        build_.Key(key);
-        return KeyItemContext{*this};
-    }
+	KeyItemContext Key(std::string key);
 
 	DictItemContext Value(Node::Value value) = delete;
     
     json::Node Build() = delete;
-    
 };
 
-//правило 1
 class KeyItemContext : public BaseItemContext {
 public:
-    DictItemContext StartDict()
-    {
-        build_.StartDict();
-        return DictItemContext{*this};
-    }
+    DictItemContext StartDict();
     
 	KeyItemContext EndDict() = delete;
     
 	ArrayItemContext StartArray();
-    {
-        build_.StartArray();
-        return ArrayItemContext{*this};
-    }
     
 	KeyItemContext EndArray() = delete;
 		
 	KeyItemContext Key(std::string key) = delete;
 	
-	DictItemContext Value(Node::Value value)
-    {
-        build_.Value(value);
-        return DictItemContext{*this};
-    }
+	DictItemContext Value(Node::Value value);
     
     KeyItemContext Build() = delete;
-    
 };
 
 class ArrayItemContext : public BaseItemContext {
 public:
-    DictItemContext StartDict()
-    {
-        build_.StartDict();
-        return DictItemContext{*this};
-    }
+    DictItemContext StartDict();
     
 	ArrayItemContext EndDict() = delete;
     
-	ArrayItemContext StartArray()
-    {
-        build_.StartArray();
-        return *this;
-    }
+	ArrayItemContext StartArray();
     
-	BaseItemContext EndArray()
-    {
-        build_.EndArray();
-        return BaseItemContext{*this};
-    }
+	BaseItemContext EndArray();
 		
 	ArrayItemContext Key(std::string key) = delete;
 	
-	ArrayItemContext Value(Node::Value value)
-	{
-		build_.Value(value);
-        return *this;
-	}
+	ArrayItemContext Value(Node::Value value);
     
     ArrayItemContext Build() = delete;
-    
 };
 
 }

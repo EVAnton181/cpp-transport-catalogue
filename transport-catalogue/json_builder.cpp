@@ -43,10 +43,10 @@ DictItemContext Builder::StartDict()
 {
     AddCollection(json::Dict());
 
-	DictItemContext dict{*this};
-	return dict;
+    DictItemContext dict{*this};
+    return dict;
 }
-	
+
 BaseItemContext Builder::EndDict()
 {
     if (nodes_stack_.empty())
@@ -55,19 +55,19 @@ BaseItemContext Builder::EndDict()
     }
     
     if (!nodes_stack_.back()->IsDict())
-	{
-		throw LogicError("End of non-Dict"s);
-	}
-	
-	if (!keys_.empty())
-	{
-		throw LogicError("Key without value"s);
-	}
+    {
+        throw LogicError("End of non-Dict"s);
+    }
+
+    if (!keys_.empty())
+    {
+        throw LogicError("Key without value"s);
+    }
     
     nodes_stack_.pop_back();
     
     BaseItemContext base{*this};
-	return base;
+    return base;
 }
 
 ArrayItemContext Builder::StartArray()
@@ -85,15 +85,15 @@ BaseItemContext Builder::EndArray()
         throw LogicError("Build was finished"s);	
     }
     
-	if (!nodes_stack_.back()->IsArray())
-	{
-		throw LogicError("End of non-array"s);	
-	}
-	
-	nodes_stack_.pop_back();
+    if (!nodes_stack_.back()->IsArray())
+    {
+        throw LogicError("End of non-array"s);	
+    }
     
-	BaseItemContext base{*this};
-	return base;
+    nodes_stack_.pop_back();
+    
+    BaseItemContext base{*this};
+    return base;
 }
 
 KeyItemContext Builder::Key(std::string key)
@@ -113,12 +113,12 @@ KeyItemContext Builder::Key(std::string key)
         throw LogicError("Key without value"s);
     }
     
-	keys_.push_back(key);
-    
+    keys_.push_back(key);
+
     nodes_stack_.back()->AsDict()[key];
     
-   	KeyItemContext item_key{*this};
-	return item_key;
+    KeyItemContext item_key{*this};
+    return item_key;
 }
 
 ValueItemContext Builder::Value(Node::Value value) 
@@ -154,12 +154,12 @@ ValueItemContext Builder::Value(Node::Value value)
 
 json::Node Builder::Build()
 {
-	if (!nodes_stack_.empty())
-	{
-		throw LogicError("Build error (incomplete Node)"s);
-	}
+    if (!nodes_stack_.empty())
+    {
+        throw LogicError("Build error (incomplete Node)"s);
+    }
 
-	return root_;
+    return root_;
 }
 
 
@@ -213,7 +213,6 @@ BaseItemContext DictItemContext::EndDict()
 {
     build_.EndDict();
     return BaseItemContext{*this};
-<<<<<<< HEAD
 }
 
 KeyItemContext DictItemContext::Key(std::string key)
@@ -260,54 +259,6 @@ BaseItemContext ArrayItemContext::EndArray()
 
 ArrayItemContext ArrayItemContext::Value(Node::Value value)
 {
-=======
-}
-
-KeyItemContext DictItemContext::Key(std::string key)
-{
-    build_.Key(key);
-    return KeyItemContext{*this};
-}
-
-DictItemContext KeyItemContext::StartDict()
-{
-    build_.StartDict();
-    return DictItemContext{*this};
-}
-
-ArrayItemContext KeyItemContext::StartArray()
-{
-    build_.StartArray();
-    return ArrayItemContext{*this};
-}
-
-DictItemContext KeyItemContext::Value(Node::Value value)
-{
-    build_.Value(value);
-    return DictItemContext{*this};
-}
-
-DictItemContext ArrayItemContext::StartDict()
-{
-    build_.StartDict();
-    return DictItemContext{*this};
-}
-    
-ArrayItemContext ArrayItemContext::StartArray()
-{
-    build_.StartArray();
-    return *this;
-}
-
-BaseItemContext ArrayItemContext::EndArray()
-{
-    build_.EndArray();
-    return BaseItemContext{*this};
-}
-
-ArrayItemContext ArrayItemContext::Value(Node::Value value)
-{
->>>>>>> 73d4cb78afc15ef432bd8ef041b53877263d01e0
     build_.Value(value);
     return *this;
 }

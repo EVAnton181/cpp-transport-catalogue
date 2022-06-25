@@ -4,8 +4,8 @@
  * @date Май 2022
  * @version 1.0
  * 
- * @brief Заголовочный файл с интерфейсом для работы с TransportCatalogue
- * и MapRanderer
+ * @brief Заголовочный файл с интерфейсом для работы с TransportCatalogue, 
+ * TransportRoutet и MapRanderer
  * 
  * 
 */
@@ -20,6 +20,7 @@
 #include "transport_catalogue.h"
 #include "map_renderer.h"
 #include "domain.h"
+#include "transport_router.h"
 
 // #include "log_duration.h"
 
@@ -30,6 +31,10 @@ public:
 		, renderer_(renderer)
 	{
 	}
+	
+// 	// Заполняем transport_routet_
+// 	void InitTransportRoutet();
+    
     // Возвращает информацию о маршруте (запрос Bus)
     const std::optional<domain::BusStat> GetBusStat(const std::string_view& bus_name) const;
 
@@ -43,4 +48,5 @@ private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;
+//     router::TransportRoutet transport_router_;
 };

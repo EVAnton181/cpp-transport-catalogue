@@ -59,6 +59,18 @@ void CompleteCatalog(catalog::TransportCatalogue& catalog, const json::Node& bas
 	}
 }
 
+void AddRoutingSettingInCatalog(catalog::TransportCatalogue& catalog, const json::Node& map_with_setting) {
+    int wait_time =  map_with_setting.AsDict().at("bus_wait_time").AsInt();
+    int bus_velocity =  map_with_setting.AsDict().at("bus_velocity").AsInt();
+    
+    catalog.AddRoutingSetting(wait_time, bus_velocity); 
+}
+
+void BuildRouter(catalog::TransportCatalogue& catalog) {
+    catalog.InitRouterGraph();
+    catalog.AddEdgeInRouterGraph();
+}
+
 std::variant<std::monostate, std::string, svg::Rgb, svg::Rgba> GetColor(const json::Node& param) {
 	if (param.IsString()) {
 		return param.AsString();
@@ -71,6 +83,11 @@ std::variant<std::monostate, std::string, svg::Rgb, svg::Rgba> GetColor(const js
 		}
 	}
 	return nullptr;
+}
+
+void BuildGraph(catalog::TransportCatalogue& catalog) {
+    catalog.InitRouterGraph();
+    catalog.AddEdgeInRouterGraph();
 }
 
 void SetRenderSetting(map_renderer::MapRanderer& map, const json::Node& render_settings) {
@@ -230,11 +247,19 @@ void LoadJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& m
     
     CompleteCatalog(catalog, base_requests);
     
+    if (input_doc.GetRoot().AsDict().count("routing_settings")) {
+		auto routing_settings = input_doc.GetRoot().AsDict().at("routing_settings");
+		AddRoutingSettingInCatalog(catalog, routing_settings);
+        BuildGraph(catalog);
+	}
+	
 	if (input_doc.GetRoot().AsDict().count("render_settings")) {
 		auto render_settings = input_doc.GetRoot().AsDict().at("render_settings");
 		SetRenderSetting(map, render_settings);
 	}
+	
 	RequestHandler handler(catalog, map);
+//     handler.InitTransportRoutet();
 	
 	if (input_doc.GetRoot().AsDict().count("render_settings")) {
 		handler.MakeRenderMap();

@@ -56,6 +56,25 @@ void AddStopDistance(catalog::TransportCatalogue& catalog, const json::Dict& map
 void AddBusInCatalog(catalog::TransportCatalogue& catalog, const json::Dict& map_with_bus);
 
 /*!
+	* Обрабатывает json структуру содержащую запрос на добавление настроек маршрута (время ожидания автобуса и скорость автобуса)
+	* 
+	* @param catalog ссылка на транспортный каталог
+	* @param map_with_setting json структура с настройками маршрута
+	* 
+	* @return None
+*/
+void AddRoutingSettingInCatalog(catalog::TransportCatalogue& catalog, const json::Node& map_with_setting);
+
+/*!
+    * Создаем ??????
+    * 
+    * @param catalog ссылка на транспортный каталог
+    * 
+    * @return None
+*/
+void BuildGraph(catalog::TransportCatalogue& catalog);
+
+/*!
 	* Обрабатывает json с базой данных и вызывает соответствующую функцию
 	* обработки запросов
 	* 

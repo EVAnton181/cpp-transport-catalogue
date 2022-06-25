@@ -20,11 +20,14 @@
 #include <functional>
 #include <algorithm>
 #include <unordered_set>
+#include <cstddef>
 
 #include <iostream>
 
 
 #include "domain.h"
+// #include "transport_router.h"
+#include "graph.h"
 
 namespace catalog {
 /*!
@@ -77,6 +80,29 @@ namespace catalog {
         */
         void SetDistance(domain::Stop* departure_stop, domain::Stop* arrival_stop, double distance);
 		
+        /*!
+         * Добавляет настройки маршрута (время ожидания автобуса и скорость автобуса)
+         * 
+         * @param wait_time время ожидания автобуса на остановке в минутах
+		 * @param bus_velocity средняя скорость автобуса в км/ч
+         * 
+         * @return None
+        */
+        void AddRoutingSetting(int wait_time, int bus_velocity);
+        
+        /*!
+         * Инициализируем граф маршрутов
+         * 
+         * @return None
+        */
+        void InitRouterGraph();
+        
+        /*!
+         * Заполняем граф ребрами
+         * 
+         * @return None
+        */
+        void AddEdgeInRouterGraph();
         /*!
          * Ищет информацию об остановке в каталоге
          * 
@@ -177,6 +203,24 @@ namespace catalog {
          * 
          */
 		std::unordered_set<const domain::Stop*> GetStopsToRender() const;
+        
+                    //         /*!
+                    //          * Возвращает параметры маршрутов (время ожидания автобуса, скорость автобуса)
+                    //          * 
+                    //          * @return первым параметром возвращается время ожидания автобуса, вторым - скорость автобуса
+                    //          * 
+                    //          */
+                    //         const std::tuple<int, int> GetRoutingSetting() const;
+                    //         
+                    //         /*!
+                    //          * Возвращает количество остановок в каталоге
+                    //          * 
+                    //          * @return количество остановок в каталоге
+                    //          * 
+                    //          */
+                    //         const size_t GetStopsCount() const;
+        
+        
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок
@@ -199,6 +243,10 @@ namespace catalog {
         
         using KeyStops = std::pair<domain::Stop*, domain::Stop*>;
         std::unordered_map<KeyStops, double, pair_hash> distance_; /// Контейнер с дистанциями между остановками
+       
+       domain::RoutingSetting routing_setting_;
+//        router::TransportRoutet transport_router_;
+       graph::DirectedWeightedGraph<double> router_graph_;
        
     };
 }

@@ -23,7 +23,7 @@ void TransportCatalogue::AddBus(std::string_view name, std::vector<std::string_v
 }
 
 void TransportCatalogue::AddStop(std::string_view name, double lat, double lng) {
-    auto& ref = stops_.emplace_back(std::string(name), lat, lng);
+    auto& ref = stops_.emplace_back(std::string(name), lat, lng, stops_.size());
     std::string_view stop_sw = ref.stop_name;
     stopname_to_stop_[stop_sw] = &ref;
     stopname_to_buses_[stop_sw];
@@ -36,6 +36,59 @@ void TransportCatalogue::SetDistance(domain::Stop* departure_stop, domain::Stop*
 	distance_[key_pair] = distance;
 }
 
+void TransportCatalogue::AddRoutingSetting(int wait_time, int bus_velocity)  {
+    routing_setting_.wait_time = wait_time;
+    routing_setting_.bus_velocity = bus_velocity;
+}
+
+void TransportCatalogue::InitRouterGraph() {
+    router_graph_(stops_.size());
+}
+
+void TransportCatalogue::AddEdgeInRouterGraph() {
+    for (auto bus : buses_) {
+        for (size_t i = 0; i < bus.stops.size(); ++i) {
+            
+            for (size_t j = 0; j < bus.stops.size(); ++j) {
+                
+                
+                if (!bus.round_trip) {
+                    
+                }
+                
+            }
+        }
+        for (auto stop : bus.stops) {
+            
+        }
+    }
+    
+//     size_t stops_count = stops_.size();
+//     
+//     for (size_t i = 0; i < stops_count; ++i) {
+//         std::string_view stop_from = stops_.at(i);
+//         auto buses_by_stop = GetBusesByStop(stop_from);
+//         if (!buses_by_stop) {
+//             continue;
+//         }
+//         
+//         for (size_t j = 0; j < stops_count; ++j) {
+//             std::string_view stop_to = stops_.at(j);
+//             if (stop_from == stop_to) {
+//                 continue;
+//             }
+//             
+//         }
+//     }
+//     
+//     graph::Edge added_edge;
+//     added_edge.frome =
+//     added_edge.to = 
+//     added_edge.weight = 
+//     added_edge.stops_count = 
+//     added_edge.bus = 
+//     router_graph_.AddEdge()
+}
 
 domain::Stop* TransportCatalogue::FindStop(const std::string& name) {
     if (stopname_to_stop_.count(name) != 0) {
@@ -191,3 +244,11 @@ std::unordered_set<const domain::Stop*> TransportCatalogue::GetStopsToRender() c
     
     return stops;
 }
+
+// const std::tuple<int, int> TransportCatalogue::GetRoutingSetting() const {
+//     return std::make_tuple(routing_setting_.wait_time, routing_setting_.bus_velocity);
+// }
+// 
+// const size_t TransportCatalogue::GetStopsCount() const {
+//     return stops_.size();
+// }

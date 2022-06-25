@@ -18,10 +18,12 @@ namespace domain {
 struct Stop {
     std::string stop_name;
     geo::Coordinates geo_point;
+    size_t stop_id;
     
-    Stop(std::string p_name, double p_latitude, double p_longitude)
+    Stop(std::string p_name, double p_latitude, double p_longitude, size_t id)
 		:stop_name(std::move(p_name))
 		,geo_point({p_latitude, p_longitude}) 
+        ,stop_id(id)
 	{
 	}
 };
@@ -47,6 +49,12 @@ struct BusStat {
   double route_length = 0;
   int stop_count = 0;
   int unique_stop_count = 0;
+};
+
+struct RoutingSetting {
+  int wait_time = 0;
+  int bus_velocity = 0;
+  
 };
 
 }    //namespace domain

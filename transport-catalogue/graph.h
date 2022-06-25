@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ranges.h"
+#include "domain.h"
 
 #include <cstdlib>
 #include <vector>
@@ -15,6 +16,8 @@ struct Edge {
     VertexId from;
     VertexId to;
     Weight weight;
+    int stops_count;
+    domain::Bus* bus;
 };
 
 template <typename Weight>

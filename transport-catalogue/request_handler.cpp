@@ -1,5 +1,10 @@
 #include "request_handler.h"
 
+// // Заполняем transport_routet_
+// void RequestHandler::InitTransportRoutet() {
+//     transport_router_.InitRouterGraph(db_);
+// }
+
 const std::optional<domain::BusStat> RequestHandler::GetBusStat(const std::string_view& bus_name) const{
 	return db_.GetBusStat(bus_name);
 }

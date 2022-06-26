@@ -42,25 +42,56 @@ void TransportCatalogue::AddRoutingSetting(int wait_time, int bus_velocity)  {
 }
 
 void TransportCatalogue::InitRouterGraph() {
-    router_graph_(stops_.size());
+    router_graph_ = graph::DirectedWeightedGraph<double>(stops_.size());
 }
 
 void TransportCatalogue::AddEdgeInRouterGraph() {
-    for (auto bus : buses_) {
-        for (size_t i = 0; i < bus.stops.size(); ++i) {
-            
-            for (size_t j = 0; j < bus.stops.size(); ++j) {
+    for (auto& bus : buses_) {
+				graph::Edge<double> added_edge;
+				added_edge.bus = &bus;
+        for (size_t i = 0; i < bus.stops.size() - 1; ++i) {
+            double sum_distance = 0;
+						double sum_back_distance = 0;
+            for (size_t j = i + 1; j < bus.stops.size(); ++j) {
+								added_edge.from = bus.stops.at(i)->stop_id;
+								added_edge.to = bus.stops.at(j)->stop_id;
+								
+                auto distance = GetDistance(bus.stops.at(j-1), bus.stops.at(j));
+								
+								if (!distance) {
+									distance = GetDistance(bus.stops.at(j), bus.stops.at(j-1));
+								}
+								
+								sum_distance += distance.value();
+								
+								added_edge.weight = sum_distance / routing_setting_.bus_velocity + routing_setting_.wait_time;
                 
-                
+								added_edge.stops_count = j - i;
+								
+								router_graph_.AddEdge(added_edge);
+								
                 if (!bus.round_trip) {
-                    
+									added_edge.from = bus.stops.at(j)->stop_id;
+									added_edge.to = bus.stops.at(i)->stop_id;
+									
+									auto distance_back = GetDistance(bus.stops.at(j), bus.stops.at(j-1));
+									if (distance_back != nullptr && distance_back != distance) {
+										sum_back_distance += distance_back.value();
+									}
+									else {
+										sum_back_distance += distance;
+									}
+									
+									added_edge.weight = sum_distance / routing_setting_.bus_velocity + routing_setting_.wait_time;
+									
+									router_graph_.AddEdge(added_edge);
                 }
                 
             }
         }
-        for (auto stop : bus.stops) {
-            
-        }
+//         for (auto stop : bus.stops) {
+//             
+//         }
     }
     
 //     size_t stops_count = stops_.size();
@@ -81,7 +112,6 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
 //         }
 //     }
 //     
-//     graph::Edge added_edge;
 //     added_edge.frome =
 //     added_edge.to = 
 //     added_edge.weight = 

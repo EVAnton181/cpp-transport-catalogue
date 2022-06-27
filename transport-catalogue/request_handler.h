@@ -26,10 +26,10 @@
 
 class RequestHandler {
 public:
-    RequestHandler(const catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, graph::DirectedWeightedGraph<double> graph) 
+    RequestHandler(const catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, const graph::DirectedWeightedGraph<double>& graph) 
 		: db_(catalog)
 		, renderer_(renderer)
-        , transport_router_(graph)
+		, transport_router_(graph)
 	{
 	}
 	

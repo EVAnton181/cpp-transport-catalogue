@@ -46,8 +46,8 @@ void TransportCatalogue::InitRouterGraph() {
 }
 
 void TransportCatalogue::AddEdgeInRouterGraph() {
-    const int to_km = 1000;
-    const int to_min = 60;
+    const double to_km = 1000;
+    const double to_min = 60;
     
     for (auto& bus : buses_) {
         graph::Edge<double> added_edge;
@@ -67,7 +67,7 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
 								
                 sum_distance += distance.value();
 								
-                added_edge.weight = ((sum_distance / to_km) / routing_setting_.bus_velocity) * to_min + routing_setting_.wait_time;
+                added_edge.weight = sum_distance /  (routing_setting_.bus_velocity * to_km / to_min) + routing_setting_.wait_time;
                 
                 added_edge.stops_count = j - i;
 								
@@ -85,7 +85,7 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
                         sum_back_distance += distance.value();
                     }
 									
-                    added_edge.weight = ((sum_back_distance / to_km) / routing_setting_.bus_velocity) * to_min + routing_setting_.wait_time;
+                    added_edge.weight = sum_back_distance / (routing_setting_.bus_velocity * to_km / to_min) + routing_setting_.wait_time;
 									
                     router_graph_.AddEdge(added_edge);
                 }
@@ -250,7 +250,7 @@ std::unordered_set<const domain::Stop*> TransportCatalogue::GetStopsToRender() c
     return stops;
 }
 
-const graph::DirectedWeightedGraph<double> TransportCatalogue::GetGraph() const {
+const graph::DirectedWeightedGraph<double>& TransportCatalogue::GetGraph() const {
     return router_graph_;
 }
 
@@ -262,6 +262,6 @@ const std::string_view TransportCatalogue::GetStopNameFromId(size_t id) const {
     return stops_.at(id).stop_name;
 }
 
-const int TransportCatalogue::GetWaitTime() const {
+const double TransportCatalogue::GetWaitTime() const {
     return routing_setting_.wait_time;
 }

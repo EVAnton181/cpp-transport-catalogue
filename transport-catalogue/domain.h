@@ -53,14 +53,14 @@ struct BusStat {
 };
 
 struct RoutingSetting {
-  int wait_time = 0;
-  int bus_velocity = 0;
+  double wait_time = 0;
+  double bus_velocity = 0;
   
 };
 
 struct RouteInfo {
     std::string_view wait_stop;
-    int wait_time;
+    double wait_time;
     std::string_view bus_name;
     int span_count;
     double time;

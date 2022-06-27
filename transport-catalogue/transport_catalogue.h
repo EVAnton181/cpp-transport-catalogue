@@ -202,7 +202,7 @@ namespace catalog {
         * @return Возвращает граф маршрутов
         * 
         */
-        const graph::DirectedWeightedGraph<double> GetGraph() const;
+        const graph::DirectedWeightedGraph<double>& GetGraph() const;
        
         /*!
         * Возвращает Id остановки
@@ -226,7 +226,7 @@ namespace catalog {
         * @return время ожидания автобуса
         * 
         */
-        const int GetWaitTime() const;
+        const double GetWaitTime() const;
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок

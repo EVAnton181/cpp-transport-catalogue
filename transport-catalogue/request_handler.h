@@ -26,14 +26,15 @@
 
 class RequestHandler {
 public:
-    RequestHandler(const catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer) 
+    RequestHandler(const catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, graph::DirectedWeightedGraph<double> graph) 
 		: db_(catalog)
 		, renderer_(renderer)
+        , transport_router_(graph)
 	{
 	}
 	
-// 	// Заполняем transport_routet_
-// 	void InitTransportRoutet();
+	// Возвращаем информацию о пути
+	const std::optional<std::tuple<double, std::vector<domain::RouteInfo>>> GetRouter(const std::string_view& stop_from, const std::string_view& stop_to) const;
     
     // Возвращает информацию о маршруте (запрос Bus)
     const std::optional<domain::BusStat> GetBusStat(const std::string_view& bus_name) const;
@@ -48,5 +49,5 @@ private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;
-//     router::TransportRoutet transport_router_;
+    transport_router::TransportRouter transport_router_;
 };

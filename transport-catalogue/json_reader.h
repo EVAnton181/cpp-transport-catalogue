@@ -140,6 +140,17 @@ json::Dict MakeStopDict(const RequestHandler& handler, const json::Node& request
 json::Dict MakeMapDict(const RequestHandler& handler, const json::Node& requests);
 
 /*!
+	* Формирует ответ в json формате на запрос о пути между остановками
+	* 
+	* @param handler ссылка на класс содержащий информацию о транспрортном справочкике и ссылку на карту
+	* @param requests запрос об остановке
+	* 
+	* 
+	* @return json словарь с пути между остановками
+*/
+json::Dict MakeRouteDict(const RequestHandler& handler, const json::Node& requests);
+
+/*!
 	* Выдает статистику о маршрутах, остановках и выводит из в out
 	* 
 	* @param handler ссылка на класс содержащий информацию о транспрортном справочкике и ссылку на карту

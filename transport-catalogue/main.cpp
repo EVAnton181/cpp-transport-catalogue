@@ -11,8 +11,8 @@
 
 int main() {
 // 	для gdb
-// 	std::ifstream in("input.json");
-//     std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
+	std::ifstream in("input12-2.json");
+    std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
     catalog::TransportCatalogue catalog;
 	map_renderer::MapRanderer map;
 

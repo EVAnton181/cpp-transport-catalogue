@@ -98,7 +98,9 @@ namespace catalog {
         void InitRouterGraph();
         
         /*!
-         * Заполняем граф ребрами
+         * Заполняем граф маршрутов ребрами (ребро - время (в минутах) 
+         * за которое можно добраться с остановки "from" до остановки "to"
+         * на маршруте "bus", включая время ожидания автобуса)
          * 
          * @return None
         */
@@ -154,16 +156,6 @@ namespace catalog {
         std::optional<double> GetDistance(domain::Stop* stop1, domain::Stop* stop2) const;
         
 		/*!
-         * Возвращает список названий маршрутов проходящих через заданную остановку
-         * 
-         * @param stop_name Имя остановки, в которой ищутся проходящие маршруты
-         * 
-         * @return список имен остановок
-         * 
-         */
-// 		const std::unordered_set<std::string_view>* GetBusesSet(const std::string_view& stop_name) const;
-		
-		/*!
          * Возвращает отсортированный список маршрутов, в которые входит хотябы одна остановка
          * 
          * @return отсортированный vector с указателями на маршруты, в коротых есть хотябы одна остановка
@@ -204,23 +196,37 @@ namespace catalog {
          */
 		std::unordered_set<const domain::Stop*> GetStopsToRender() const;
         
-                    //         /*!
-                    //          * Возвращает параметры маршрутов (время ожидания автобуса, скорость автобуса)
-                    //          * 
-                    //          * @return первым параметром возвращается время ожидания автобуса, вторым - скорость автобуса
-                    //          * 
-                    //          */
-                    //         const std::tuple<int, int> GetRoutingSetting() const;
-                    //         
-                    //         /*!
-                    //          * Возвращает количество остановок в каталоге
-                    //          * 
-                    //          * @return количество остановок в каталоге
-                    //          * 
-                    //          */
-                    //         const size_t GetStopsCount() const;
+        /*!
+        * Возвращает граф маршрутов
+        * 
+        * @return Возвращает граф маршрутов
+        * 
+        */
+        const graph::DirectedWeightedGraph<double> GetGraph() const;
+       
+        /*!
+        * Возвращает Id остановки
+        * 
+        * @return Id остановки
+        * 
+        */
+        const size_t GetStopId(std::string_view stop_name) const;
         
+        /*!
+        * Возвращает имя остановки по ее Id
+        * 
+        * @return имя остановки
+        * 
+        */
+        const std::string_view GetStopNameFromId(size_t id) const;
         
+        /*!
+        * Возвращает время ожидания автобуса
+        * 
+        * @return время ожидания автобуса
+        * 
+        */
+        const int GetWaitTime() const;
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок

@@ -213,6 +213,52 @@ json::Dict MakeMapDict(const RequestHandler& handler, const json::Node& requests
 				.AsDict();
 }
 
+json::Dict MakeRouteDict(const RequestHandler& handler, const json::Node& requests) {
+    auto anser = handler.GetRouter(requests.AsDict().at("from").AsString(), requests.AsDict().at("to").AsString());
+    
+    if ( !anser ) {
+		return json::Builder{}
+					.StartDict()
+						.Key("request_id"s).Value(requests.AsDict().at("id").AsInt())
+						.Key("error_message"s).Value("not found"s)
+					.EndDict()
+				.Build()
+				.AsDict();
+	} else {
+        json::Array route;
+        for (auto info : std::get<1>(anser.value())) {
+            json::Dict wait = json::Builder{}
+                                .StartDict()
+                                    .Key("stop_name"s).Value(std::string(info.wait_stop))
+                                    .Key("time"s).Value(info.wait_time)
+                                    .Key("type"s).Value("Wait")
+                                .EndDict()
+                            .Build()
+                            .AsDict();
+            route.push_back(wait);
+            
+            json::Dict bus = json::Builder{}
+                                .StartDict()
+                                    .Key("bus"s).Value(std::string(info.bus_name))
+                                    .Key("span_count"s).Value(info.span_count)
+                                    .Key("time"s).Value(info.time)
+                                    .Key("type"s).Value("Bus")
+                                .EndDict()
+                            .Build()
+                            .AsDict();
+            route.push_back(bus);
+        }
+        return json::Builder{}
+					.StartDict()
+                        .Key("request_id"s).Value(requests.AsDict().at("id").AsInt())
+                        .Key("total_time"s).Value(std::get<0>(anser.value()))
+                        .Key("items"s).Value(route)
+                    .EndDict()
+                .Build()
+                .AsDict();
+    }
+}
+
 void GetStatistic(const RequestHandler& handler, const json::Node& stat_requests, std::ostream& out) {
 //     RequestHandler request(catalog);
     json::Array result;
@@ -225,6 +271,8 @@ void GetStatistic(const RequestHandler& handler, const json::Node& stat_requests
             result.push_back(MakeStopDict(handler, request));
         } else if (request.AsDict().at("type").AsString() == "Map") {
 			result.push_back(MakeMapDict(handler, request));
+		} else if (request.AsDict().at("type").AsString() == "Route") {
+			result.push_back(MakeRouteDict(handler, request));
 		}
     }
 	
@@ -258,7 +306,7 @@ void LoadJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& m
 		SetRenderSetting(map, render_settings);
 	}
 	
-	RequestHandler handler(catalog, map);
+	RequestHandler handler(catalog, map, catalog.GetGraph());
 //     handler.InitTransportRoutet();
 	
 	if (input_doc.GetRoot().AsDict().count("render_settings")) {

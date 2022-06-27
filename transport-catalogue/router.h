@@ -29,6 +29,7 @@ public:
 
     std::optional<RouteInfo> BuildRoute(VertexId from, VertexId to) const;
 
+    const Graph GetGraph() const;
 private:
     struct RouteInternalData {
         Weight weight;
@@ -92,6 +93,11 @@ Router<Weight>::Router(const Graph& graph)
     for (VertexId vertex_through = 0; vertex_through < vertex_count; ++vertex_through) {
         RelaxRoutesInternalDataThroughVertex(vertex_count, vertex_through);
     }
+}
+
+template <typename Weight>
+const typename Router<Weight>::Graph Router<Weight>::GetGraph() const {
+    return graph_;
 }
 
 template <typename Weight>

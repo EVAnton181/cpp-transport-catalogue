@@ -14,6 +14,36 @@ const std::optional<std::vector<std::string_view>> RequestHandler::GetBusesBySto
 	return db_.GetBusesByStop(stop_name);
 }
 
+const std::optional<std::tuple<double, std::vector<domain::RouteInfo>>> RequestHandler::GetRouter(const std::string_view& stop_from, const std::string_view& stop_to) const {
+    auto from = db_.GetStopId(stop_from);
+    auto to = db_.GetStopId(stop_to);
+    auto router = transport_router_.GetRouter(from, to);
+    
+    if (!router) {
+        return {};
+    }
+    
+    auto vector_info = std::get<1>(router.value());
+    
+    std::vector<domain::RouteInfo> anser;
+    
+    int wait_time = db_.GetWaitTime();
+    
+    for (auto info : vector_info) {
+        domain::RouteInfo added_anser;
+        added_anser.wait_stop = db_.GetStopNameFromId(info.wait_stop);
+        added_anser.wait_time = wait_time;
+        added_anser.bus_name = info.bus->bus;
+        added_anser.span_count = info.span_count;
+        added_anser.time  = info.time - wait_time;
+        
+        anser.push_back(added_anser);
+    }
+    
+    
+    return  std::make_tuple(std::get<0>(router.value()), anser);
+}
+    
 void RequestHandler::MakeRenderMap() {
 	
 	std::vector<geo::Coordinates> all_geo_coordinates = db_.GetAllRenderGeoCoordinates();

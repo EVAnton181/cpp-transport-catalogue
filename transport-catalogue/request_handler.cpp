@@ -1,10 +1,6 @@
 #include "request_handler.h"
 
-// // Заполняем transport_routet_
-// void RequestHandler::InitTransportRoutet() {
-//     transport_router_.InitRouterGraph(db_);
-// }
-
+/// Возвращает информацию о маршруте
 const std::optional<domain::BusStat> RequestHandler::GetBusStat(const std::string_view& bus_name) const{
 	return db_.GetBusStat(bus_name);
 }
@@ -14,9 +10,10 @@ const std::optional<std::vector<std::string_view>> RequestHandler::GetBusesBySto
 	return db_.GetBusesByStop(stop_name);
 }
 
+/// Возвращаем информацию о пути
 const std::optional<std::tuple<double, std::vector<domain::RouteInfo>>> RequestHandler::GetRouter(const std::string_view& stop_from, const std::string_view& stop_to) const {
-    auto from = db_.GetStopId(stop_from);
-    auto to = db_.GetStopId(stop_to);
+    const auto from = db_.GetStopId(stop_from);
+    const auto to = db_.GetStopId(stop_to);
     auto router = transport_router_.GetRouter(from, to);
     
     if (!router) {
@@ -29,7 +26,7 @@ const std::optional<std::tuple<double, std::vector<domain::RouteInfo>>> RequestH
     
     int wait_time = db_.GetWaitTime();
     
-    for (auto info : vector_info) {
+    for (auto& info : vector_info) {
         domain::RouteInfo added_anser;
         added_anser.wait_stop = db_.GetStopNameFromId(info.wait_stop);
         added_anser.wait_time = wait_time;
@@ -80,7 +77,6 @@ void RequestHandler::MakeRenderMap() {
 	for (auto& stop : sort_stops) {
 			renderer_.AddStopNameOnMap(stop->stop_name, stop->geo_point);
 	}
-    
 }
 
 void RequestHandler::RenderMap(std::ostream& out) const{

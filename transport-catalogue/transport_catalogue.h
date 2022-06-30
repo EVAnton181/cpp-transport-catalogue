@@ -26,7 +26,6 @@
 
 
 #include "domain.h"
-// #include "transport_router.h"
 #include "graph.h"
 
 namespace catalog {
@@ -210,7 +209,7 @@ namespace catalog {
         * @return Id остановки
         * 
         */
-        const size_t GetStopId(std::string_view stop_name) const;
+        size_t GetStopId(std::string_view stop_name) const;
         
         /*!
         * Возвращает имя остановки по ее Id
@@ -218,7 +217,7 @@ namespace catalog {
         * @return имя остановки
         * 
         */
-        const std::string_view GetStopNameFromId(size_t id) const;
+        std::string_view GetStopNameFromId(size_t id) const;
         
         /*!
         * Возвращает время ожидания автобуса
@@ -226,7 +225,7 @@ namespace catalog {
         * @return время ожидания автобуса
         * 
         */
-        const double GetWaitTime() const;
+        double GetWaitTime() const;
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок

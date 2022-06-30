@@ -296,9 +296,13 @@ void LoadJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& m
     CompleteCatalog(catalog, base_requests);
     
     if (input_doc.GetRoot().AsDict().count("routing_settings")) {
+        
 		auto routing_settings = input_doc.GetRoot().AsDict().at("routing_settings");
 		AddRoutingSettingInCatalog(catalog, routing_settings);
+  {
+      LOG_DURATION("BuildGraph");
         BuildGraph(catalog);
+  }
 	}
 	
 	if (input_doc.GetRoot().AsDict().count("render_settings")) {
@@ -314,6 +318,7 @@ void LoadJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& m
 	}
 	
 	if (input_doc.GetRoot().AsDict().count("stat_requests")) {
+     LOG_DURATION("stat_requests");
 		auto stat_requests = input_doc.GetRoot().AsDict().at("stat_requests");
 		GetStatistic(handler, stat_requests, out);
 	}

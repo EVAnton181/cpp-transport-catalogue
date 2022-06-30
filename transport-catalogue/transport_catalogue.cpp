@@ -37,8 +37,10 @@ void TransportCatalogue::SetDistance(domain::Stop* departure_stop, domain::Stop*
 }
 
 void TransportCatalogue::AddRoutingSetting(int wait_time, int bus_velocity)  {
+    const double to_km = 1000;
+    const double to_min = 60;
     routing_setting_.wait_time = wait_time;
-    routing_setting_.bus_velocity = bus_velocity;
+    routing_setting_.bus_velocity = bus_velocity * to_km / to_min;
 }
 
 void TransportCatalogue::InitRouterGraph() {
@@ -46,11 +48,9 @@ void TransportCatalogue::InitRouterGraph() {
 }
 
 void TransportCatalogue::AddEdgeInRouterGraph() {
-    const double to_km = 1000;
-    const double to_min = 60;
-    
+
+    graph::Edge<double> added_edge;
     for (auto& bus : buses_) {
-        graph::Edge<double> added_edge;
         added_edge.bus = &bus;
         for (size_t i = 0; i < bus.stops.size() - 1; ++i) {
             double sum_distance = 0;
@@ -67,7 +67,7 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
 								
                 sum_distance += distance.value();
 								
-                added_edge.weight = sum_distance /  (routing_setting_.bus_velocity * to_km / to_min) + routing_setting_.wait_time;
+                added_edge.weight = sum_distance /  routing_setting_.bus_velocity + routing_setting_.wait_time;
                 
                 added_edge.stops_count = j - i;
 								
@@ -85,7 +85,7 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
                         sum_back_distance += distance.value();
                     }
 									
-                    added_edge.weight = sum_back_distance / (routing_setting_.bus_velocity * to_km / to_min) + routing_setting_.wait_time;
+                    added_edge.weight = sum_back_distance /   routing_setting_.bus_velocity + routing_setting_.wait_time;
 									
                     router_graph_.AddEdge(added_edge);
                 }
@@ -181,14 +181,6 @@ std::optional<double> TransportCatalogue::GetDistance(domain::Stop* stop1, domai
         return {};
     }
 }
-/*
-const std::unordered_set<std::string_view>* TransportCatalogue::GetBusesSet(const std::string_view& stop_name) const {
-	if (stopname_to_buses_.count(stop_name) == 0) {
-		return nullptr;
-	} else {
-		return &stopname_to_buses_.at(stop_name);
-	}
-}*/
 
 std::vector<const domain::Bus*> TransportCatalogue::GetSortBusesToRender() const {
 	auto buses = GetBusesToRender();
@@ -254,14 +246,14 @@ const graph::DirectedWeightedGraph<double>& TransportCatalogue::GetGraph() const
     return router_graph_;
 }
 
-const size_t TransportCatalogue::GetStopId(std::string_view stop_name) const {
+size_t TransportCatalogue::GetStopId(std::string_view stop_name) const {
     return stopname_to_stop_.at(stop_name)->stop_id;
 }
 
-const std::string_view TransportCatalogue::GetStopNameFromId(size_t id) const {
+std::string_view TransportCatalogue::GetStopNameFromId(size_t id) const {
     return stops_.at(id).stop_name;
 }
 
-const double TransportCatalogue::GetWaitTime() const {
+double TransportCatalogue::GetWaitTime() const {
     return routing_setting_.wait_time;
 }

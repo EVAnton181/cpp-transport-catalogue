@@ -23,6 +23,8 @@
 #include "map_renderer.h"
 #include "json_builder.h"
 
+#include "log_duration.h"
+
 /*!
 	* Обрабатывает json структуру содержащую запрос на добавление 
 	* остановки в каталог

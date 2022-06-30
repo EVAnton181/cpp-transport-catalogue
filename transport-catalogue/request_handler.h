@@ -46,7 +46,6 @@ public:
 
 	void RenderMap(std::ostream& out = std::cout) const;
 private:
-    // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     const catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;
     transport_router::TransportRouter transport_router_;

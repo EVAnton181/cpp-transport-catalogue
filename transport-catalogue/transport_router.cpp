@@ -16,7 +16,7 @@ std::optional<std::tuple<double, std::vector<RouteInfo>>> TransportRouter::GetRo
     double total_time = router.value().weight;
     std::vector<RouteInfo> items;
     
-    for (auto edge : router.value().edges) {
+    for (auto& edge : router.value().edges) {
         const graph::Edge route_part = router_.GetGraph().GetEdge(edge);
         RouteInfo item;
         

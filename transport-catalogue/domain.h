@@ -53,7 +53,7 @@ struct BusStat {
 };
 
 struct RoutingSetting {
-  double wait_time = 0;
+  int wait_time = 0;
   double bus_velocity = 0;
   
 };

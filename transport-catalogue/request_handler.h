@@ -44,7 +44,7 @@ public:
         
     void MakeRenderMap();
 
-	void RenderMap(std::ostream& out = std::cout) const;
+    void RenderMap(std::ostream& out = std::cout) const;
 private:
     const catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;

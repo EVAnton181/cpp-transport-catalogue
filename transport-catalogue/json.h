@@ -33,107 +33,37 @@ public:
     using variant::variant;
     using Value = variant;
 
-    bool IsInt() const {
-        return std::holds_alternative<int>(*this);
-    }
+    bool IsInt() const;
     
-    int AsInt() const {
-        using namespace std::literals;
-        if (!IsInt()) {
-            throw std::logic_error("Not an int"s);
-        }
-        return std::get<int>(*this);
-    }
+    int AsInt() const;
 
-    bool IsPureDouble() const {
-        return std::holds_alternative<double>(*this);
-    }
+    bool IsPureDouble() const;
     
-    bool IsDouble() const {
-        return IsInt() || IsPureDouble();
-    }
+    bool IsDouble() const;
     
-    double AsDouble() const {
-        using namespace std::literals;
-        if (!IsDouble()) {
-            throw std::logic_error("Not a double"s);
-        }
-        return IsPureDouble() ? std::get<double>(*this) : AsInt();
-    }
-
-    bool IsBool() const {
-        return std::holds_alternative<bool>(*this);
-    }
+    double AsDouble() const;
     
-    bool AsBool() const {
-        using namespace std::literals;
-        if (!IsBool()) {
-            throw std::logic_error("Not a bool"s);
-        }
-
-        return std::get<bool>(*this);
-    }
-
-    bool IsNull() const {
-        return std::holds_alternative<std::nullptr_t>(*this);
-    }
-
-    bool IsArray() const {
-        return std::holds_alternative<Array>(*this);
-    }
+    bool IsBool() const;
     
-    const Array& AsArray() const {
-        using namespace std::literals;
-        if (!IsArray()) {
-            throw std::logic_error("Not an array"s);
-        }
+    bool AsBool() const;
 
-        return std::get<Array>(*this);
-    }
+    bool IsNull() const;
     
-    Array& AsArray() {
-        using namespace std::literals;
-        if (!IsArray()) {
-            throw std::logic_error("Not an array"s);
-        }
-
-        return std::get<Array>(*this);
-    }
-
-    bool IsString() const {
-        return std::holds_alternative<std::string>(*this);
-    }
+    bool IsArray() const;
     
-    const std::string& AsString() const {
-        using namespace std::literals;
-        if (!IsString()) {
-            throw std::logic_error("Not a string"s);
-        }
-
-        return std::get<std::string>(*this);
-    }
-
-    bool IsDict() const {
-        return std::holds_alternative<Dict>(*this);
-    }
+    const Array& AsArray() const;
     
-    const Dict& AsDict() const {
-        using namespace std::literals;
-        if (!IsDict()) {
-            throw std::logic_error("Not a dict"s);
-        }
+    Array& AsArray();
 
-        return std::get<Dict>(*this);
-    }
+    bool IsString() const;
+    
+    const std::string& AsString() const;
+    
+    bool IsDict() const;
+    
+    const Dict& AsDict() const;
 
-    Dict& AsDict() {
-        using namespace std::literals;
-        if (!IsDict()) {
-            throw std::logic_error("Not a dict"s);
-        }
-
-        return std::get<Dict>(*this);
-    }
+    Dict& AsDict();
     
     bool operator==(const Node& rhs) const {
         return GetValue() == rhs.GetValue();

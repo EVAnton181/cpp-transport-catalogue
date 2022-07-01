@@ -21,11 +21,6 @@ struct Edge {
 };
 
 template <typename Weight>
-inline bool operator==(const Edge<Weight>& lhs, const Edge<Weight>& rhs) {
-    return (lhs.from == rhs.from && lhs.to == rhs.to && lhs.weight == rhs.weight && lhs.stops_count == rhs.stops_count);
-}
-
-template <typename Weight>
 class DirectedWeightedGraph {
 private:
     using IncidenceList = std::vector<EdgeId>;

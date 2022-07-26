@@ -6,7 +6,7 @@
  * 
  * @brief Заголовочный файл с интерфейсом для работы с TransportCatalogue, 
  * TransportRoutet и MapRanderer
- * 
+ * Serialization
  * 
 */
 #pragma once
@@ -21,18 +21,21 @@
 #include "map_renderer.h"
 #include "domain.h"
 #include "transport_router.h"
+#include "serialization.h"
 
 // #include "log_duration.h"
 
 class RequestHandler {
 public:
-    RequestHandler(const catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, const graph::DirectedWeightedGraph<double>& graph) 
+    RequestHandler(const catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, const graph::DirectedWeightedGraph<double>& graph, 
+	const serialization::Serialization serialization) 
 		: db_(catalog)
 		, renderer_(renderer)
 		, transport_router_(graph)
+		, serialization_(serialization)		
 	{
 	}
-	
+
 	// Возвращаем информацию о пути
 	const std::optional<std::tuple<double, std::vector<domain::RouteInfo>>> GetRouter(const std::string_view& stop_from, const std::string_view& stop_to) const;
     
@@ -45,8 +48,11 @@ public:
     void MakeRenderMap();
 
     void RenderMap(std::ostream& out = std::cout) const;
+    
+    void SaveSerializationCatalog() const;
 private:
     const catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;
     transport_router::TransportRouter transport_router_;
+    serialization::Serialization& serialization_;
 };

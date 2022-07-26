@@ -226,6 +226,71 @@ namespace catalog {
         * 
         */
         double GetWaitTime() const;
+        
+        /*!
+        * Возвращает имена всех остановок
+        * 
+        * @return имена всех остановок
+        * 
+        */
+        const std::vector<std::string_view> GetAllStopName() const;
+        
+        /*!
+         * Возвращает координаты остановки
+         * 
+         * @param name имя остановки, координаты который необходимо получить
+         * 
+         * @return координаты остановки
+         * 
+         */
+		const geo::Coordinates GetStopCoordinate(std::string_view name) const;
+		
+        /*!
+        * Возвращает имена всех маршрутов
+        * 
+        * @return имена всех маршрутов
+        * 
+        */
+		const std::vector<std::string_view> GetAllBusesName() const;
+		
+        /*!
+        * Возвращает является ли маршрут кольцевым
+        * 
+        * @param name - имя маршрута
+        * 
+        * @return true - если маршрут кольцевой, 
+        * false - если не кольцевой
+        * 
+        */
+       const bool IsRoundTrip(std::string_view name) const;
+       
+        /*!
+        * Вектор id остановок маршрута
+        * 
+        * @param name - имя маршрута
+        * 
+        * @return вектор id остановок маршрута
+        * 
+        */
+       const std::vector<int> GetStopsNumToBus(std::string_view name) const;
+       
+        /*!
+        * Преобразует вектор id остановок в вектор имен оснатовок
+        * 
+        * @param ids - вектор номеров остановок
+        * 
+        * @return вектор имен остановок маршрута
+        * 
+        */
+       std::vector<std::string_view> GetStopsNameFromId(std::vector<int> ids) const;
+       
+       /*!
+        * Возвращает map дистанций с ключем в виде пары id остановок
+		* 
+        * @return map дистанций
+        * 
+        */
+       std::unordered_map<std::pair<int, int>, double> GetDistances() const;
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок

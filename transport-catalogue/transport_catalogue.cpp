@@ -257,3 +257,71 @@ std::string_view TransportCatalogue::GetStopNameFromId(size_t id) const {
 double TransportCatalogue::GetWaitTime() const {
     return routing_setting_.wait_time;
 }
+
+const std::vector<std::string_view> TransportCatalogue::GetAllStopName() const {
+    std::vector<std::string_view> stop_names;
+    stop_names.reserve(stops_.size());
+    for (auto& stop : stops_) {
+        stop_names.push_back(stop.name);
+    }
+    return stop_names;
+}
+
+const geo::Coordinates TransportCatalogue::GetStopCoordinate(std::string_view name) const {
+    return stopname_to_stop_.at(stop_name)->geo_point;
+}
+
+const std::vector<std::string_view> TransportCatalogue::GetAllBusesName() const {
+    std::vector<std::string_view> bus_names;
+    
+    bus_names.reserve(buses_.size());
+    
+    for (auto& bus : buses_) {
+        bus_names.push_back(bus.bus);
+    }
+    
+    return bus_names;
+}
+
+const bool TransportCatalogue::IsRoundTrip(std::string_view name) const {
+    return busname_to_bus_.at(name)->round_trip;
+}
+
+const std::vector<int> TransportCatalogue::GetStopsNumToBus(std::string_view name) const {
+    std::vector<int> stops_num;
+    
+    stops_num.reserve(busname_to_bus_.at(name)->stops.size());
+    
+    for (auto& stop : busname_to_bus_.at(name)->stops) {
+        stops_num.push_back(static_cast<int>(stop.stop_id));
+    }
+    
+    return stops_num;
+}
+
+std::vector<std::string_view> TransportCatalogue::GetStopsNameFromId(std::vector<int> ids) const {
+  std::vector<std::string_view> stops_name;
+  stops_name.reserve(stops_.size());
+  
+  for (auto id : ids) {
+	stops_name.push_back(GetStopNameFromId(static_cast<size_t>(id)));
+  }
+  
+  return stops_name;
+}
+
+std::unordered_map<std::pair<int, int>, double> TransportCatalogue::GetDistances() const {
+	std::unordered_map<std::pair<int, int>, double> map_distances;
+	
+	for (auto& stop_from : stops) {
+	  for (auto& stop_to :  stops) {
+		auto distance = GetDistance(&stop_from, &stop_to);
+		if (distance.has_value()) {
+		  auto key_pair = std::make_pair(static_cast<int>(stop_from.id), static_cast<int>(stop_to.id));
+		  map_distances[key_pair] = distance.value();
+		}
+	  }
+	}
+	
+	return map_distances;
+}

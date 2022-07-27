@@ -322,7 +322,6 @@ void InitBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRandere
 }
 
 void RequestJSON(std::istream& input,  std::ostream& out) {
-    map_renderer::MapRanderer map;
   	json::Document input_doc(json::Load(input));
     
     serialization::Serialization serialization;
@@ -333,7 +332,10 @@ void RequestJSON(std::istream& input,  std::ostream& out) {
 	}
 	
 	serialization.LoadFrom();
-    catalog::TransportCatalogue catalog(serialization.DeserializeTransportCatalogue());
+    catalog::TransportCatalogue catalog;
+    serialization.DeserializeTransportCatalogue(catalog);
+    
+    map_renderer::MapRanderer map;
 	
     RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
         

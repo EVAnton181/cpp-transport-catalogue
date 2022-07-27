@@ -54,28 +54,21 @@ void Serialization::SaveTo() const {
 }
 
 // Возвращает десериализованный каталог
-catalog::TransportCatalogue Serialization::DeserializeTransportCatalogue() {
-    catalog::TransportCatalogue load_catalog;
-    std::cout <<  "deser" << std::endl;
-//     std::vector<catalog_buf::Stop> stops = serialization_catalog_.stop();
-    int size = serialization_catalog_.stop_size();
+void Serialization::DeserializeTransportCatalogue(catalog::TransportCatalogue& load_catalog) {
     
-        std::cout << "size = " << size << std::endl;
+    int size = serialization_catalog_.stop_size();
     
     for (int i = 0; i < size; ++i) {
         auto stop = serialization_catalog_.stop(i);
-        std::cout << stop.stop_name() << std::endl;
 	  load_catalog.AddStop(stop.stop_name(), stop.point().lat(), stop.point().lng());
 	}
 	
 	size = serialization_catalog_.map_distance_size();
-	std::cout << "size = " << size << std::endl;
     for (int i = 0; i < size; ++i) {
     auto dist = serialization_catalog_.map_distance(i);
-	 std::cout << dist.stop_id_from() << std::endl; load_catalog.SetDistance(load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_from()))),  load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_to()))), dist.distance());
+	load_catalog.SetDistance(load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_from()))),  load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_to()))), dist.distance());
 	}
 	
-// 	std::vector<catalog_buf::Bus> buses = serialization_catalog_.bus();
     size = serialization_catalog_.bus_size();
 	for (auto& bus : serialization_catalog_.bus()) {
      
@@ -84,18 +77,13 @@ catalog::TransportCatalogue Serialization::DeserializeTransportCatalogue() {
         for (auto& stop_id : bus.stop_num()) {
             stops.push_back(load_catalog.GetStopNameFromId(stop_id));
         }
-//         stops = std::move(load_catalog.GetStopsNameFromId(bus.stop_num()));
 
         load_catalog.AddBus(bus.bus_name(), stops, bus.round_trip());
 	}
-	
-	std::cout << "size = " << size << std::endl;
-	return load_catalog;
 }
 
 // Загружает сериализованный каталог из file_
 void Serialization::LoadFrom() {
-    std::cout << file_ << std::endl;
 	std::ifstream ifs(file_, std::ios::binary);
     if (!serialization_catalog_.ParseFromIstream(&ifs)) {
         std::cout << "Fatal ERROR" << std::endl;

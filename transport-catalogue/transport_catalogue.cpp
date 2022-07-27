@@ -325,9 +325,9 @@ std::vector<std::string_view> TransportCatalogue::GetStopsNameFromId(std::vector
 std::vector<std::tuple<int, int, double>> TransportCatalogue::GetDistances() const {
 	std::vector<std::tuple<int, int, double>> map_distances;
 	
-	for (domain::Stop stop_from : stops_) {
-	  for (domain::Stop stop_to : stops_) {
-		auto distance = GetDistance(&stop_from, &stop_to);
+	for (auto stop_from : stops_) {
+	  for (auto stop_to : stops_) {
+		auto distance = GetDistance(stopname_to_stop_.at(stop_from.stop_name), stopname_to_stop_.at(stop_to.stop_name));
 		if (distance.has_value()) {
             map_distances.push_back(std::make_tuple(static_cast<int>(stop_from.stop_id), static_cast<int>(stop_to.stop_id), distance.value()));
 		}

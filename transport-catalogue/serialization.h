@@ -41,7 +41,7 @@ public:
     
     void SaveTo() const;
     
-    catalog::TransportCatalogue DeserializeTransportCatalogue();
+    void DeserializeTransportCatalogue(catalog::TransportCatalogue& catalog);
     
     void LoadFrom();
     

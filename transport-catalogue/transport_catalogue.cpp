@@ -2,6 +2,18 @@
 
 using namespace catalog;
 
+TransportCatalogue::TransportCatalogue(TransportCatalogue& other) 
+  : stops_(other.stops_)
+  , stopname_to_stop_(other.stopname_to_stop_)
+  , stopname_to_buses_(other.stopname_to_buses_)
+  , buses_(other.buses_)
+  , busname_to_bus_(other.busname_to_bus_)
+  , distance_(other.distance_)
+  , routing_setting_(other.routing_setting_)
+  , router_graph_(other.router_graph_)
+{
+}
+
 void TransportCatalogue::AddBus(std::string_view name, std::vector<std::string_view>& stops_name, bool flag) {
     std::vector<domain::Stop*> ptr_stops;
     
@@ -262,12 +274,12 @@ const std::vector<std::string_view> TransportCatalogue::GetAllStopName() const {
     std::vector<std::string_view> stop_names;
     stop_names.reserve(stops_.size());
     for (auto& stop : stops_) {
-        stop_names.push_back(stop.name);
+        stop_names.push_back(stop.stop_name);
     }
     return stop_names;
 }
 
-const geo::Coordinates TransportCatalogue::GetStopCoordinate(std::string_view name) const {
+const geo::Coordinates TransportCatalogue::GetStopCoordinate(std::string_view stop_name) const {
     return stopname_to_stop_.at(stop_name)->geo_point;
 }
 
@@ -293,7 +305,7 @@ const std::vector<int> TransportCatalogue::GetStopsNumToBus(std::string_view nam
     stops_num.reserve(busname_to_bus_.at(name)->stops.size());
     
     for (auto& stop : busname_to_bus_.at(name)->stops) {
-        stops_num.push_back(static_cast<int>(stop.stop_id));
+        stops_num.push_back(static_cast<int>(stop->stop_id));
     }
     
     return stops_num;
@@ -310,15 +322,14 @@ std::vector<std::string_view> TransportCatalogue::GetStopsNameFromId(std::vector
   return stops_name;
 }
 
-std::unordered_map<std::pair<int, int>, double> TransportCatalogue::GetDistances() const {
-	std::unordered_map<std::pair<int, int>, double> map_distances;
+std::vector<std::tuple<int, int, double>> TransportCatalogue::GetDistances() const {
+	std::vector<std::tuple<int, int, double>> map_distances;
 	
-	for (auto& stop_from : stops) {
-	  for (auto& stop_to :  stops) {
+	for (domain::Stop stop_from : stops_) {
+	  for (domain::Stop stop_to : stops_) {
 		auto distance = GetDistance(&stop_from, &stop_to);
 		if (distance.has_value()) {
-		  auto key_pair = std::make_pair(static_cast<int>(stop_from.id), static_cast<int>(stop_to.id));
-		  map_distances[key_pair] = distance.value();
+            map_distances.push_back(std::make_tuple(static_cast<int>(stop_from.stop_id), static_cast<int>(stop_to.stop_id), distance.value()));
 		}
 	  }
 	}

@@ -6,26 +6,29 @@
 #include "transport_catalogue.h"
 #include "json_reader.h"
 #include "map_renderer.h"
-#include "request_handler.h"
+#include "serialization.h"
+// #include "request_handler.h"
 
-#include "log_duration.h"
+// #include "log_duration.h"
 
 // int main() {
 // 	для gdb
 // LOG_DURATION("total");
-// 	std::ifstream in("input12-4.json");
-//     std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
-    catalog::TransportCatalogue catalog;
-	map_renderer::MapRanderer map;
-
-	LoadJSON(catalog, map);
+//     catalog::TransportCatalogue catalog;
+// 	map_renderer::MapRanderer map;
+// 
+// 	LoadJSON(catalog, map);
 	
+using namespace std::literals;
 
 void PrintUsage(std::ostream& stream = std::cerr) {
     stream << "Usage: transport_catalogue [make_base|process_requests]\n"sv;
 }
 
 int main(int argc, char* argv[]) {
+	std::ifstream in("input_process_requests.json");
+    std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
+    
     if (argc != 2) {
         PrintUsage();
         return 1;
@@ -39,21 +42,14 @@ int main(int argc, char* argv[]) {
 		serialization::Serialization serialization;
 		
 		InitBaseJSON(catalog, map, serialization);
-		RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
 		
-		handler.SaveSerializationCatalog();
 		
     } else if (mode == "process_requests"sv) {
-		catalog::TransportCatalogue catalog;
-		map_renderer::MapRanderer map;
-		serialization::Serialization serialization;
+// 		catalog::TransportCatalogue catalog;
+// 		map_renderer::MapRanderer map;
+// 		serialization::Serialization serialization;
 		
-		InitBaseJSON(catalog, map, serialization);
-		serialization.LoadFrom();
-		catalog = serialization.DeserializeTransportCatalogue();
-		RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
-		
-		RequestJSON(handler);
+        RequestJSON();
 		
     } else {
         PrintUsage();
@@ -61,4 +57,4 @@ int main(int argc, char* argv[]) {
     }
     
     return 0;
-}}
+}

@@ -44,6 +44,8 @@ namespace catalog {
 		
         TransportCatalogue() {}
         
+        TransportCatalogue(TransportCatalogue& other);
+        
         /*!
          * Добавляет новый маршрут в каталог
          * 
@@ -53,7 +55,6 @@ namespace catalog {
          * 
          * @return None
         */
-		// Передать stops_name по константной ссылке не могу, так как в данном методе для получения колличества уникальных остановок применяю алгоритм std::unique который модифицирует вектор
         void AddBus(std::string_view name, std::vector<std::string_view>& stops_name, bool flag);
         
         /*!
@@ -290,7 +291,7 @@ namespace catalog {
         * @return map дистанций
         * 
         */
-       std::unordered_map<std::pair<int, int>, double> GetDistances() const;
+       std::vector<std::tuple<int, int, double>> GetDistances() const;
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок

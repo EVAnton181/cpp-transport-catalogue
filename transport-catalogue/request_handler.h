@@ -49,10 +49,10 @@ public:
 
     void RenderMap(std::ostream& out = std::cout) const;
     
-    void SaveSerializationCatalog() const;
+    void SaveSerializationCatalog();
 private:
     const catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;
     transport_router::TransportRouter transport_router_;
-    serialization::Serialization& serialization_;
+    serialization::Serialization serialization_;
 };

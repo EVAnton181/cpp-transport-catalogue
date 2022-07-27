@@ -139,8 +139,8 @@ void SetRenderSetting(map_renderer::MapRanderer& map, const json::Node& render_s
 	map.SetSettings(settings);
 }
     
-void SetSerializationFile(serialization::Serialization serialization, const json::Dict& serialization_file) {
-  serialization.SetFilePath(serialization_file.at("file").AsString());
+void SetSerializationFile(serialization::Serialization& serialization, const json::Node& serialization_file) {
+    serialization.SetFilePath(serialization_file.AsDict().at("file").AsString());
 }
 
 json::Dict MakeBusDict(const RequestHandler& handler, const json::Node& requests) {
@@ -263,7 +263,7 @@ json::Dict MakeRouteDict(const RequestHandler& handler, const json::Node& reques
     }
 }
 
-void GetStatistic(const RequestHandler& handler, const json::Node& stat_requests, std::ostream& out) {
+void GetStatistic(RequestHandler& handler, const json::Node& stat_requests, std::ostream& out) {
 //     RequestHandler request(catalog);
     json::Array result;
 //     RequestHandler req(catalog);
@@ -315,13 +315,30 @@ void InitBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRandere
 		auto serialization_file = input_doc.GetRoot().AsDict().at("serialization_settings");
         SetSerializationFile(serialization, serialization_file);        
 	}
+	
+	RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
+		
+    handler.SaveSerializationCatalog();
 }
 
-void RequestJSON(RequestHandler& handler, std::istream& input,  std::ostream& out) {
+void RequestJSON(std::istream& input,  std::ostream& out) {
+    map_renderer::MapRanderer map;
   	json::Document input_doc(json::Load(input));
+    
+    serialization::Serialization serialization;
   	
+    if (input_doc.GetRoot().AsDict().count("serialization_settings")) {
+		auto serialization_file = input_doc.GetRoot().AsDict().at("serialization_settings");
+        SetSerializationFile(serialization, serialization_file);        
+	}
+	
+	serialization.LoadFrom();
+    catalog::TransportCatalogue catalog(serialization.DeserializeTransportCatalogue());
+	
+    RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
+        
 	if (input_doc.GetRoot().AsDict().count("stat_requests")) {
-     LOG_DURATION("stat_requests");
+//      LOG_DURATION("stat_requests");
 		auto stat_requests = input_doc.GetRoot().AsDict().at("stat_requests");
 		GetStatistic(handler, stat_requests, out);
 	}

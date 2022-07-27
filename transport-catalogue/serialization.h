@@ -11,13 +11,15 @@
 */
 #pragma once
 
-#include <transport_catalog.pb.h>
 
-#include "transport_catalog.h"
+#include <transport_catalogue.pb.h>
+#include "transport_catalogue.h"
 
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <tuple>
+#include <unordered_map>
 
 namespace serialization {
 /*!
@@ -29,7 +31,7 @@ namespace serialization {
  * Позволяет загружать и сохранять транспортный справочник в сериализованном виде в заданный файл
  */
 
-using Path = std::filesystem::path;
+// using Path = std::filesystem::path;
 
 class Serialization {
 public:
@@ -44,7 +46,7 @@ public:
     void LoadFrom();
     
 private:
-	Path file_;
+	std::string file_;
     catalog_buf::Catalog serialization_catalog_;
 };
 }

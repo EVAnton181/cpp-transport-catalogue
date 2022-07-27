@@ -83,7 +83,7 @@ void RequestHandler::RenderMap(std::ostream& out) const{
 	renderer_.PrintRander(out);
 }
 
-void SaveSerializationCatalog() const {
+void RequestHandler::SaveSerializationCatalog() {
 	serialization_.InitSerializationCatalog(db_);
 	serialization_.SaveTo();
 }

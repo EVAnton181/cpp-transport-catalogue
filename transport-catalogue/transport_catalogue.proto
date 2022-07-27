@@ -3,8 +3,8 @@ syntax = "proto3";
 package catalog_buf;
 
 message Coordinates {
-    double lat;
-    double lng;
+    double lat = 1;
+    double lng = 2;
 }
 
 message Stop {
@@ -18,8 +18,8 @@ message Bus {
     bool round_trip = 3;
 }
 
-message Distanse {
-	int32 stop_if_from = 1;
+message Distance {
+	int32 stop_id_from = 1;
 	int32 stop_id_to = 2;
 	double distance = 3;
 }
@@ -27,5 +27,5 @@ message Distanse {
 message Catalog {
     repeated Stop stop = 1;
     repeated Bus bus = 2;
-    repeated Distanse map_distance = 3;
+    repeated Distance map_distance = 3;
 }

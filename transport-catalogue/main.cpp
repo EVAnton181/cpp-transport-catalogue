@@ -26,7 +26,7 @@ void PrintUsage(std::ostream& stream = std::cerr) {
 }
 
 int main(int argc, char* argv[]) {
-	std::ifstream in("./make_base.json");
+	std::ifstream in("./process_requests.json");
     std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
     
     if (argc != 2) {

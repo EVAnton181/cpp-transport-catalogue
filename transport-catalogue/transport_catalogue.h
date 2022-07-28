@@ -202,7 +202,7 @@ namespace catalog {
         * @return Возвращает граф маршрутов
         * 
         */
-        const graph::DirectedWeightedGraph<double>& GetGraph() const;
+        graph::DirectedWeightedGraph<double>& GetGraph();
        
         /*!
         * Возвращает Id остановки

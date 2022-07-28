@@ -254,7 +254,7 @@ std::unordered_set<const domain::Stop*> TransportCatalogue::GetStopsToRender() c
     return stops;
 }
 
-const graph::DirectedWeightedGraph<double>& TransportCatalogue::GetGraph() const {
+graph::DirectedWeightedGraph<double>& TransportCatalogue::GetGraph() {
     return router_graph_;
 }
 

@@ -187,11 +187,106 @@ int Serialization::GetMapSize() {
     return serialization_catalog_.map_distance_size();
 }
 
-std::tuple<int, int, double> Serialization::GetManData(int i) {
+std::tuple<int, int, double> Serialization::GetMapData(int i) {
     auto dist = serialization_catalog_.map_distance(i);
     return std::make_tuple(dist.stop_id_from(), dist.stop_id_to(), dist.distance());
 }
+
+int Serialization::GetBusCount() {
+	return serialization_catalog_.bus_size();
+}
+
+std::string Serialization::GetBusName(int i) {
+  return serialization_catalog_.bus(i).bus_name();
+}
+
+bool Serialization::GetRoundTripFlag(int i) {
+  return serialization_catalog_.bus(i).round_trip();
+}
+
+std::vector<int> Serialization::GetStopsId(int i) {
+  std::vector<int> stops_id;
+  for (auto& id :  serialization_catalog_.bus(i).stop_num()) {
+	stops_id.push_back(id);
+  }
+  return stops_id;
+}
+
+double Serialization::GetRenderWidth() {
+	return serialization_catalog_.render_settings().width();
+}
+double Serialization::GetRenderHeight() {
+    return serialization_catalog_.render_settings().height();
+}
+
+double Serialization::GetRenderPadding() {
+    return serialization_catalog_.render_settings().padding();
+}
+
+double Serialization::GetRenderLineWidth() {
+	  return serialization_catalog_.render_settings().line_width();
+}
+
+double Serialization::GetRenderStopRadius() {
+    return serialization_catalog_.render_settings().stop_radius();
+}
+
+int Serialization::GetRenderBusLab() {
+    return serialization_catalog_.render_settings().bus_label_font_size();
+}
+
+int Serialization::GetRenderStopLab() {
+    return serialization_catalog_.render_settings().stop_label_font_size();
+}
+
+double Serialization::GetRenderUnderlayerWidth() {
+    return serialization_catalog_.render_settings().underlayer_width();
+}
+
+std::pair<double, double> Serialization::GetOffset(std::string what) {
+  catalog_buf::Point point_pb;
+  if (what ==  "bus") {
+	  point_pb = serialization_catalog_.render_settings().bus_label_offset();
+  }
+  else if (what == "stop") {
+	  point_pb = serialization_catalog_.render_settings().stop_label_offset();
+  }
+  return std::make_pair(point_pb.x(),  point_pb.y());
+}
+
+svg::Color Serialization::ConvertBack(catalog_buf::Color& color) {
+  svg::Color anser;
+  if (color.has_color_name()) {
+	anser = color.color_name();
+  } 
+  else if (color.has_rgb()) {
+	svg::Rgb rgb(color.rgb().red(), color.rgb().green(), color.rgb().blue());
+	anser = rgb;
+  }
+  else if (color.has_rgba()) {
+	svg::Rgba rgba(color.rgba().red(), color.rgba().green(), color.rgba().blue(),  color.rgba().opacity());
+	anser = rgba;
+  }
+  
+  return anser;
+}
+
+svg::Color Serialization::GetColorUnder() {
+  catalog_buf::Color color = serialization_catalog_.render_settings().underlayer_color();
+  return ConvertBack(color);
+}
+
+svg::Color Serialization::GetPaletteColor(int i) {
+  catalog_buf::Color color = serialization_catalog_.render_settings().color_palette(i);
+  return ConvertBack(color);;
+}
+
+int Serialization::GetPaletteSize() {
+  return serialization_catalog_.render_settings().color_palette_size();
+}
+
 // Возвращает десериализованный каталог
+/*
 void Serialization::DeserializeTransportCatalogue(catalog::TransportCatalogue& load_catalog) {
 {    
     int size = serialization_catalog_.stop_size();
@@ -218,7 +313,7 @@ void Serialization::DeserializeTransportCatalogue(catalog::TransportCatalogue& l
 
         load_catalog.AddBus(bus.bus_name(), stops, bus.round_trip());
 	}
-}
+}*/
 
 // Загружает сериализованный каталог из file_
 void Serialization::LoadFrom() {

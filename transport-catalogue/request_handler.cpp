@@ -135,6 +135,9 @@ void RequestHandler::DeserializeCatalogue() {
 
     DeserializeMapDistance();
 
+    DeserializeBus();
+    
+    DeserializeRenderMap();
 }
 
 void RequestHandler::DeserializeStop() {
@@ -153,4 +156,49 @@ void RequestHandler::DeserializeMapDistance() {
         auto stop_to = db_.FindStop(std::string(db_.GetStopNameFromId(std::get<1>(map_data))));
         db_.SetDistance(stop_from, stop_to,  std::get<2>(map_data));
     }
+}
+
+void RequestHandler::DeserializeBus() {
+  int bus_count = serialization_.GetBusCount();
+  for (int i = 0; i < bus_count; ++i) {
+	std::string bus_name = serialization_.GetBusName(i);
+	bool round_trip = serialization_.GetRoundTripFlag(i);
+	std::vector<int> stops_id = serialization_.GetStopsId(i);
+	std::vector<std::string_view> stops;
+	for (auto id : stops_id) {
+	  stops.push_back(db_.GetStopNameFromId(id));
+	}
+	db_.AddBus(bus_name, stops, round_trip);
+  }
+}
+
+void RequestHandler::DeserializeRenderMap() {
+  map_renderer::RenderSettings settings;
+  settings.width = serialization_.GetRenderWidth();
+  settings.height = serialization_.GetRenderHeight();
+  settings.padding = serialization_.GetRenderPadding();
+  settings.line_width = serialization_.GetRenderLineWidth();
+  settings.stop_radius = serialization_.GetRenderStopRadius();
+  settings.bus_label_font_size = serialization_.GetRenderBusLab();
+  settings.stop_label_font_size = serialization_.GetRenderStopLab();
+  settings.underlayer_width = serialization_.GetRenderUnderlayerWidth();
+  
+  auto point = serialization_.GetOffset("bus");
+  svg::Point bus(point.first,  point.second);
+  settings.bus_label_offset = bus;
+
+  point = serialization_.GetOffset("stop");
+  svg::Point stop(point.first,  point.second);
+  settings.bus_label_offset = stop;
+  
+  settings.underlayer_color = serialization_.GetColorUnder();
+  
+  int palette_size = serialization_.GetPaletteSize();
+  
+  for (int i = 0; i < palette_size; ++i) {
+	settings.color_palette = serialization_.GetPaletteColor(i);
+  }
+  
+  
+//   serialization_.GetParam
 }

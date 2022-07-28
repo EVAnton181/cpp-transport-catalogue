@@ -15,7 +15,7 @@
 #include <transport_catalogue.pb.h>
 #include "svg.h"
 
-#include "transport_catalogue.h"
+// #include "transport_catalogue.h"
 
 #include <iostream>
 #include <filesystem>
@@ -50,13 +50,50 @@ public:
 	
 	void InitRenderColor(svg::Color underlayer_color, std::vector<svg::Color> color_palette);
 //     void InitSerializationCatalog(const catalog::TransportCatalogue& catalog);
+    int GetStopCount();
+
+	std::tuple<std::string, double, double> GetStopData(int i);
+	
+	int GetMapSize();
+
+	std::tuple<int, int, double> GetMapData(int i);
+
+	int GetBusCount();
+
+	std::string GetBusName(int i);
+	
+	bool GetRoundTripFlag(int i);
+
+	std::vector<int> GetStopsId(int i);
     
-    void SaveTo() const;
-    
-    void DeserializeTransportCatalogue(catalog::TransportCatalogue& catalog);
-    
+//     void DeserializeTransportCatalogue(catalog::TransportCatalogue& catalog);
+	double GetRenderWidth();
+	
+	double GetRenderHeight();
+
+	double GetRenderPadding();
+
+	double GetRenderLineWidth();
+
+	double GetRenderStopRadius();
+
+	int GetRenderBusLab();
+
+	int GetRenderStopLab();
+
+	double GetRenderUnderlayerWidth();
+	
+	svg::Color GetColorUnder();
+	
+	int GetPaletteSize();
+	
+	svg::Color GetPaletteColor(int i);
+	
+	std::pair<double, double> GetOffset(std::string what);
+	
     void LoadFrom();
     
+    void SaveTo() const;
 private:
 	std::string file_;
     catalog_buf::Catalog serialization_catalog_;
@@ -65,5 +102,6 @@ private:
     catalog_buf::Color ConvertColor(std::string color);
     catalog_buf::Color ConvertColor(svg::Rgb color);
     catalog_buf::Color ConvertColor(svg::Rgba color);
+    svg::Color ConvertBack(catalog_buf::Color& color);
 };
 }

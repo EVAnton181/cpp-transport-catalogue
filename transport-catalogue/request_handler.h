@@ -54,10 +54,18 @@ public:
     void SaveSerializationCatalog();
     
     void DeserializeCatalogue();
+    
+    void DeserializeRenderMap();
 private:
     catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;
     transport_router::TransportRouter transport_router_;
     serialization::Serialization serialization_;
+    
+    void DeserializeStop();
+    
+    void DeserializeMapDistance();
+    
+    void DeserializeBus();
 };
 

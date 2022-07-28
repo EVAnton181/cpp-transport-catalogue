@@ -27,8 +27,8 @@
 
 class RequestHandler {
 public:
-    RequestHandler(const catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, const graph::DirectedWeightedGraph<double>& graph, 
-	const serialization::Serialization serialization) 
+    RequestHandler(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, graph::DirectedWeightedGraph<double>& graph, 
+	serialization::Serialization serialization) 
 		: db_(catalog)
 		, renderer_(renderer)
 		, transport_router_(graph)
@@ -49,10 +49,15 @@ public:
 
     void RenderMap(std::ostream& out = std::cout) const;
     
+    void InitSerializationCatalog();
+    
     void SaveSerializationCatalog();
+    
+    void DeserializeCatalogue();
 private:
-    const catalog::TransportCatalogue& db_;
+    catalog::TransportCatalogue& db_;
     map_renderer::MapRanderer& renderer_;
     transport_router::TransportRouter transport_router_;
     serialization::Serialization serialization_;
 };
+

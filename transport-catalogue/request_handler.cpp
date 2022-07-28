@@ -83,7 +83,74 @@ void RequestHandler::RenderMap(std::ostream& out) const{
 	renderer_.PrintRander(out);
 }
 
+void RequestHandler::InitSerializationCatalog() {
+    // сериализуем остановки
+    for(auto& stop_name : db_.GetAllStopName()) {
+        auto coordinate = db_.GetStopCoordinate(stop_name);
+        serialization_.InitSerializationStop(std::string(stop_name),  coordinate.lat,  coordinate.lng);
+    }
+    
+    // сериализуем расстояния между остановками
+    std::vector<std::tuple<int, int, double>> distances = db_.GetDistances();
+    for (auto& distance : distances) {
+        serialization_.InitSerializationDistance(std::get<0>(distance),  std::get<1>(distance), std::get<2>(distance));
+    }
+    
+    //  сериализуем маршруты
+    for (auto& bus_name : db_.GetAllBusesName()) {
+        const std::vector<int> bus_stops = db_.GetStopsNumToBus(bus_name);
+        serialization_.InitSerializationBus(std::string(bus_name), db_.IsRoundTrip(bus_name), bus_stops);
+    }
+
+    // сериализация настроек 
+    {
+        auto renderer_settings = renderer_.GetSettings();
+        serialization_.InitRenderSettiingsParam(renderer_settings.width,
+                    renderer_settings.height, 
+                    renderer_settings.padding, 
+                    renderer_settings.line_width,
+                    renderer_settings.stop_radius,
+                    renderer_settings.bus_label_font_size,
+                    renderer_settings.stop_label_font_size,
+                    renderer_settings.underlayer_width);
+                    
+        double bus_x = renderer_settings.bus_label_offset.x;
+        double bus_y = renderer_settings.bus_label_offset.y;
+        double stop_x = renderer_settings.stop_label_offset.x;
+        double stop_y = renderer_settings.stop_label_offset.y;
+        serialization_.InitRenderPoint(bus_x, bus_y, stop_x, stop_y);
+        
+        serialization_.InitRenderColor(renderer_settings.underlayer_color, renderer_settings.color_palette);
+    }
+    
+    
+}
+
 void RequestHandler::SaveSerializationCatalog() {
-	serialization_.InitSerializationCatalog(db_);
 	serialization_.SaveTo();
+}
+
+void RequestHandler::DeserializeCatalogue() {
+    DeserializeStop();
+
+    DeserializeMapDistance();
+
+}
+
+void RequestHandler::DeserializeStop() {
+    int stop_count = serialization_.GetStopCount();
+    for (int i = 0; i < stop_count; ++i) {
+        std::tuple<std::string, double, double> stop_data = serialization_.GetStopData(i); 
+        db_.AddStop(std::get<0>(stop_data), std::get<1>(stop_data), std::get<2>(stop_data));
+    }
+}
+
+void RequestHandler::DeserializeMapDistance() {
+    int map_size = serialization_.GetMapSize();
+    for (int i = 0; i < map_size; ++i) {
+        std::tuple<int, int, double> map_data = serialization_.GetMapData(i); 
+        auto stop_from = db_.FindStop(std::string(db_.GetStopNameFromId(std::get<0>(map_data))));
+        auto stop_to = db_.FindStop(std::string(db_.GetStopNameFromId(std::get<1>(map_data))));
+        db_.SetDistance(stop_from, stop_to,  std::get<2>(map_data));
+    }
 }

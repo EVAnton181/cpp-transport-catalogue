@@ -127,6 +127,8 @@ public:
 	void AddStopNameOnMap(const std::string& name, const geo::Coordinates& geo_coordinates);
 	
 	void PrintRander(std::ostream& out = std::cout);
+    
+    RenderSettings GetSettings() const;
 private:
 	RenderSettings settings_;
 	svg::Document rander_;

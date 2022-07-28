@@ -316,8 +316,9 @@ void InitBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRandere
         SetSerializationFile(serialization, serialization_file);        
 	}
 	
-	RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
+	RequestHandler handler(catalog, map, catalog.GetGraph(), serialization);
 		
+    handler.InitSerializationCatalog();
     handler.SaveSerializationCatalog();
 }
 
@@ -333,15 +334,18 @@ void RequestJSON(std::istream& input,  std::ostream& out) {
 	
 	serialization.LoadFrom();
     catalog::TransportCatalogue catalog;
-    serialization.DeserializeTransportCatalogue(catalog);
-    
     map_renderer::MapRanderer map;
+//     serialization.DeserializeTransportCatalogue(catalog);
+    
 	
     RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
-        
+    
+    handler.DeserializeCatalogue();
+    
 	if (input_doc.GetRoot().AsDict().count("stat_requests")) {
 //      LOG_DURATION("stat_requests");
 		auto stat_requests = input_doc.GetRoot().AsDict().at("stat_requests");
 		GetStatistic(handler, stat_requests, out);
 	}
 }
+

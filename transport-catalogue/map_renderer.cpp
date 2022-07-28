@@ -110,3 +110,7 @@ void MapRanderer::AddStopNameOnMap(const std::string& name, const geo::Coordinat
 void MapRanderer::PrintRander(std::ostream& out) {
 	rander_.Render(out);
 }
+
+RenderSettings MapRanderer::GetSettings() const {
+    return settings_;
+}

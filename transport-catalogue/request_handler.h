@@ -28,7 +28,7 @@
 class RequestHandler {
 public:
     RequestHandler(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& renderer, graph::DirectedWeightedGraph<double>& graph, 
-	serialization::Serialization serialization) 
+	serialization::Serialization& serialization) 
 		: db_(catalog)
 		, renderer_(renderer)
 		, transport_router_(graph)
@@ -67,5 +67,6 @@ private:
     void DeserializeMapDistance();
     
     void DeserializeBus();
+    
 };
 

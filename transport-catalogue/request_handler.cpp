@@ -101,6 +101,10 @@ void RequestHandler::InitSerializationCatalog() {
         const std::vector<int> bus_stops = db_.GetStopsNumToBus(bus_name);
         serialization_.InitSerializationBus(std::string(bus_name), db_.IsRoundTrip(bus_name), bus_stops);
     }
+    
+    // сериализация настройки пути
+    auto router_settings = db_.GetRoutingSetting();
+    serialization_.InitRoutingSettings(router_settings.wait_time, router_settings.bus_velocity);
 
     // сериализация настроек 
     {
@@ -138,6 +142,7 @@ void RequestHandler::DeserializeCatalogue() {
     DeserializeBus();
     
     DeserializeRenderMap();
+    
 }
 
 void RequestHandler::DeserializeStop() {
@@ -189,16 +194,15 @@ void RequestHandler::DeserializeRenderMap() {
 
   point = serialization_.GetOffset("stop");
   svg::Point stop(point.first,  point.second);
-  settings.bus_label_offset = stop;
+  settings.stop_label_offset = stop;
   
   settings.underlayer_color = serialization_.GetColorUnder();
   
   int palette_size = serialization_.GetPaletteSize();
   
   for (int i = 0; i < palette_size; ++i) {
-	settings.color_palette = serialization_.GetPaletteColor(i);
+	settings.color_palette.push_back(serialization_.GetPaletteColor(i));
   }
   
-  
-//   serialization_.GetParam
+  renderer_.SetSettings(settings);
 }

@@ -292,6 +292,14 @@ namespace catalog {
         * 
         */
        std::vector<std::tuple<int, int, double>> GetDistances() const;
+       
+       /*!
+        * Возвращает RoutingSetting
+		* 
+        * @return RoutingSetting
+        * 
+        */
+       domain::RoutingSetting GetRoutingSetting() const;
     private:
     
         std::deque<domain::Stop> stops_; /// Список всех остановок

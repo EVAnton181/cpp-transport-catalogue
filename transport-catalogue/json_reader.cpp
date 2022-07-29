@@ -292,9 +292,40 @@ void GetStatistic(RequestHandler& handler, const json::Node& stat_requests, std:
 
 }
 
-void InitBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& map, serialization::Serialization& serialization, std::istream& input,  std::ostream& out) {
-	
-	json::Document input_doc(json::Load(input));
+// void LoadJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& map, std::istream& input,  std::ostream& out) {
+// 	
+// 	json::Document input_doc(json::Load(input));
+//     
+// 	auto base_requests = input_doc.GetRoot().AsDict().at("base_requests");
+//     
+//     CompleteCatalog(catalog, base_requests);
+//     
+//     if (input_doc.GetRoot().AsDict().count("routing_settings")) {
+// 		auto routing_settings = input_doc.GetRoot().AsDict().at("routing_settings");
+// 		AddRoutingSettingInCatalog(catalog, routing_settings);
+//         BuildGraph(catalog);
+// 	}
+// 	
+// 	if (input_doc.GetRoot().AsDict().count("render_settings")) {
+// 		auto render_settings = input_doc.GetRoot().AsDict().at("render_settings");
+// 		SetRenderSetting(map, render_settings);
+// 	}
+// 	
+// 	RequestHandler handler(catalog, map, catalog.GetGraph());
+// 	
+// 	if (input_doc.GetRoot().AsDict().count("render_settings")) {
+// 		handler.MakeRenderMap();
+// 	}
+// 	
+// 	if (input_doc.GetRoot().AsDict().count("stat_requests")) {
+// 		auto stat_requests = input_doc.GetRoot().AsDict().at("stat_requests");
+// 		GetStatistic(handler, stat_requests, out);
+// 	}
+// }
+
+void MakeBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& map, serialization::Serialization& serialization, std::istream& input) {
+		
+    json::Document input_doc(json::Load(input));
     
 	if (input_doc.GetRoot().AsDict().count("base_requests")) {
         auto base_requests = input_doc.GetRoot().AsDict().at("base_requests");
@@ -316,36 +347,30 @@ void InitBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRandere
         SetSerializationFile(serialization, serialization_file);        
 	}
 	
-	RequestHandler handler(catalog, map, catalog.GetGraph(), serialization);
-		
-    handler.InitSerializationCatalog();
-    handler.SaveSerializationCatalog();
 }
 
-void RequestJSON(std::istream& input,  std::ostream& out) {
+void ProcessRequestsJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& map, serialization::Serialization& serialization, std::istream& input, std::ostream& out) {
   	json::Document input_doc(json::Load(input));
     
-    serialization::Serialization serialization;
-  	
     if (input_doc.GetRoot().AsDict().count("serialization_settings")) {
 		auto serialization_file = input_doc.GetRoot().AsDict().at("serialization_settings");
         SetSerializationFile(serialization, serialization_file);        
 	}
 	
 	serialization.LoadFrom();
-    catalog::TransportCatalogue catalog;
-    map_renderer::MapRanderer map;
-//     serialization.DeserializeTransportCatalogue(catalog);
+
+    serialization.DeserializeTransportCatalogue(catalog);
     
-	
-    RequestHandler handler(catalog, map, catalog.GetGraph(),  serialization);
+    BuildGraph(catalog);
     
-    handler.DeserializeCatalogue();
+    RequestHandler handler(catalog, map, catalog.GetGraph(), serialization);
     
+    handler.DeserializeRenderMap();
+
 	if (input_doc.GetRoot().AsDict().count("stat_requests")) {
-//      LOG_DURATION("stat_requests");
 		auto stat_requests = input_doc.GetRoot().AsDict().at("stat_requests");
 		GetStatistic(handler, stat_requests, out);
 	}
+	
 }
 

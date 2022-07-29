@@ -15,7 +15,7 @@
 #include <transport_catalogue.pb.h>
 #include "svg.h"
 
-// #include "transport_catalogue.h"
+#include "transport_catalogue.h"
 
 #include <iostream>
 #include <filesystem>
@@ -44,6 +44,8 @@ public:
 	
 	void InitSerializationBus(std::string bus_name, bool round_trip, std::vector<int> bus_stops);
 	
+	void InitRoutingSettings(int wait_time,  double bus_velocity);
+	
 	void InitRenderSettiingsParam(double width, double heidht, double padding, double line_width, double stop_radius, int bus_lable_font_size, int stop_lable_font_size, double underlayer_width);
 	
 	void InitRenderPoint(double bus_x, double bus_y, double stop_x, double stop_y);
@@ -66,7 +68,8 @@ public:
 
 	std::vector<int> GetStopsId(int i);
     
-//     void DeserializeTransportCatalogue(catalog::TransportCatalogue& catalog);
+    void DeserializeTransportCatalogue(catalog::TransportCatalogue& catalog);
+	
 	double GetRenderWidth();
 	
 	double GetRenderHeight();

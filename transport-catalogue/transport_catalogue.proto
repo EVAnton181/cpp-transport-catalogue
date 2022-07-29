@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "render.proto";
+import "map_renderer.proto";
 
 package catalog_buf;
 
@@ -26,9 +26,15 @@ message Distance {
 	double distance = 3;
 }
 
+message RoutingSetting {
+    int32 wait_time = 1;
+    int32 bus_velocity = 2;
+}
+
 message Catalog {
     repeated Stop stop = 1;
     repeated Bus bus = 2;
     repeated Distance map_distance = 3;
     RenderSetting render_settings = 4;
+    RoutingSetting routing_setting = 5;
 }

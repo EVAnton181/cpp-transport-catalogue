@@ -49,10 +49,10 @@ void TransportCatalogue::SetDistance(domain::Stop* departure_stop, domain::Stop*
 }
 
 void TransportCatalogue::AddRoutingSetting(int wait_time, int bus_velocity)  {
-    const double to_km = 1000;
+    const double to_m = 1000;
     const double to_min = 60;
     routing_setting_.wait_time = wait_time;
-    routing_setting_.bus_velocity = bus_velocity * to_km / to_min;
+    routing_setting_.bus_velocity = bus_velocity * to_m / to_min;
 }
 
 void TransportCatalogue::InitRouterGraph() {
@@ -335,4 +335,8 @@ std::vector<std::tuple<int, int, double>> TransportCatalogue::GetDistances() con
 	}
 	
 	return map_distances;
+}
+
+domain::RoutingSetting TransportCatalogue::GetRoutingSetting() const{
+    return routing_setting_;
 }

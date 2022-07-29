@@ -169,27 +169,27 @@ json::Dict MakeRouteDict(const RequestHandler& handler, const json::Node& reques
 void GetStatistic(RequestHandler& handler, const json::Node& stat_requests, std::ostream& out);
 
 /*!
-	* Формирует json массив из входного потока и передает управление функциям обработчикам запросов на заполнение каталога
+	* Формирует json массив из входного потока и передает управление функциям обработчикам запросов на заполнение каталога.
 	* 
 	* @param catalog ссылка на транспортный каталог
 	* @param map ссылка на карту (графическое представление транспортного каталога)
 	* @param serialization ссылка на класс сериализации транспортного каталога
 	* @param input входной поток
-	* @param out выходной поток
 	* 
 	* @return None
 */
-void InitBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& map, serialization::Serialization& serialization,  std::istream& input = std::cin, std::ostream& out  = std::cout);
+void MakeBaseJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& map, serialization::Serialization& serialization,  std::istream& input = std::cin);
 
 /*!
-	* Формирует json массив из входного потока и передает управление функциям обработчикам запросов
+	* Формирует json массив из входного потока инициализирует класс Serialization, десериализирует catalog и map
 	* 
-	* @param catalog ссылка на транспортный каталог
+    * @param catalog ссылка на транспортный каталог
 	* @param map ссылка на карту (графическое представление транспортного каталога)
 	* @param serialization ссылка на класс сериализации транспортного каталога
 	* @param input входной поток
-	* @param out выходной поток
+    * @param out выходной поток
 	* 
 	* @return None
 */
-void RequestJSON(std::istream& input = std::cin, std::ostream& out  = std::cout);
+void ProcessRequestsJSON(catalog::TransportCatalogue& catalog, map_renderer::MapRanderer& map, serialization::Serialization& serialization, std::istream& input = std::cin, std::ostream& out = std::cout);
+

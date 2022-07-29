@@ -42,6 +42,17 @@ void Serialization::InitSerializationBus(std::string bus_name, bool round_trip, 
     *serialization_catalog_.mutable_bus(serialization_catalog_.bus_size()-1) = std::move(bus_pb);
 }
 
+void Serialization::InitRoutingSettings(int wait_time,  double bus_velocity) {
+    const double to_km = 1/1000;
+    const double to_h = 1/60;
+    
+    catalog_buf::RoutingSetting settings_pb;
+    settings_pb.set_wait_time(wait_time);
+    settings_pb.set_bus_velocity(static_cast<int>(bus_velocity / to_h * to_km));
+    
+    *serialization_catalog_.mutable_routing_setting() = std::move(settings_pb);
+}
+
 void Serialization::InitRenderSettiingsParam(double width, double heidht, double padding, double line_width, double stop_radius, int bus_lable_font_size, int stop_lable_font_size, double underlayer_width) {
     catalog_buf::RenderSetting settings_pb;
     settings_pb.set_width(width);
@@ -69,6 +80,8 @@ void Serialization::InitRenderPoint(double bus_x, double bus_y, double stop_x, d
     
     *settings_pb.mutable_bus_label_offset() = std::move(bus_point_pb);
     *settings_pb.mutable_stop_label_offset() = std::move(stop_point_pb);
+    
+    *serialization_catalog_.mutable_render_settings() = std::move(settings_pb);
 }
 
 catalog_buf::Color Serialization::ConvertColor(std::monostate) {
@@ -125,48 +138,51 @@ void Serialization::InitRenderColor(svg::Color underlayer_color, std::vector<svg
         settings_pb.add_color_palette();
         *settings_pb.mutable_color_palette(settings_pb.color_palette_size() - 1) = std::move(color_pb);
     }
+    
+    *serialization_catalog_.mutable_render_settings() = std::move(settings_pb);
 }
 
 // // Сериализует каталог
-// void Serialization::InitSerializationCatalog(const catalog::TransportCatalogue& catalog) {
-//     
-//     for (auto& stop_name : catalog.GetAllStopName()) {
-//         catalog_buf::Stop stop_pb;
-//         stop_pb.set_stop_name(std::string(stop_name));
-//         catalog_buf::Coordinates coordinate_pb;
-//         auto coordinate = catalog.GetStopCoordinate(stop_name);
-//         coordinate_pb.set_lat(coordinate.lat);
-//         coordinate_pb.set_lng(coordinate.lng);
-//         *stop_pb.mutable_point() = std::move(coordinate_pb);
-//         
-//         serialization_catalog_.add_stop();
-//         *serialization_catalog_.mutable_stop(serialization_catalog_.stop_size()-1) = std::move(stop_pb);
-//     }
-//     
-//     std::vector<std::tuple<int, int, double>> distances = catalog.GetDistances();
-//     for (auto& distance : distances) {
-// 		catalog_buf::Distance dist;
-// 		dist.set_stop_id_from(std::get<0>(distance));
-// 		dist.set_stop_id_to(std::get<1>(distance));
-// 		dist.set_distance(std::get<2>(distance));
-// 		
-// 		 serialization_catalog_.add_map_distance();
-//         *serialization_catalog_.mutable_map_distance(serialization_catalog_.map_distance_size()-1) = std::move(dist);
-// 	}
-//     
-//     for (auto& bus_name : catalog.GetAllBusesName()) {
-//         catalog_buf::Bus bus_pb;
-//         bus_pb.set_bus_name(std::string(bus_name));
-//         bus_pb.set_round_trip(catalog.IsRoundTrip(bus_name));
-//         const std::vector<int> bus_stops = catalog.GetStopsNumToBus(bus_name);
-//         for (auto& stop_num : bus_stops) {
-//             bus_pb.add_stop_num(stop_num);
-// //             *bus_pb.mutable_stop_num(bus_pb.stop_num_size()-1) = move(stop_num);
-//         }
-//         serialization_catalog_.add_bus();
-//         *serialization_catalog_.mutable_bus(serialization_catalog_.bus_size()-1) = std::move(bus_pb);
-//     }
-// }
+/*
+void Serialization::InitSerializationCatalog(const catalog::TransportCatalogue& catalog) {
+    
+    for (auto& stop_name : catalog.GetAllStopName()) {
+        catalog_buf::Stop stop_pb;
+        stop_pb.set_stop_name(std::string(stop_name));
+        catalog_buf::Coordinates coordinate_pb;
+        auto coordinate = catalog.GetStopCoordinate(stop_name);
+        coordinate_pb.set_lat(coordinate.lat);
+        coordinate_pb.set_lng(coordinate.lng);
+        *stop_pb.mutable_point() = std::move(coordinate_pb);
+        
+        serialization_catalog_.add_stop();
+        *serialization_catalog_.mutable_stop(serialization_catalog_.stop_size()-1) = std::move(stop_pb);
+    }
+    
+    std::vector<std::tuple<int, int, double>> distances = catalog.GetDistances();
+    for (auto& distance : distances) {
+		catalog_buf::Distance dist;
+		dist.set_stop_id_from(std::get<0>(distance));
+		dist.set_stop_id_to(std::get<1>(distance));
+		dist.set_distance(std::get<2>(distance));
+		
+		 serialization_catalog_.add_map_distance();
+        *serialization_catalog_.mutable_map_distance(serialization_catalog_.map_distance_size()-1) = std::move(dist);
+	}
+    
+    for (auto& bus_name : catalog.GetAllBusesName()) {
+        catalog_buf::Bus bus_pb;
+        bus_pb.set_bus_name(std::string(bus_name));
+        bus_pb.set_round_trip(catalog.IsRoundTrip(bus_name));
+        const std::vector<int> bus_stops = catalog.GetStopsNumToBus(bus_name);
+        for (auto& stop_num : bus_stops) {
+            bus_pb.add_stop_num(stop_num);
+//             *bus_pb.mutable_stop_num(bus_pb.stop_num_size()-1) = move(stop_num);
+        }
+        serialization_catalog_.add_bus();
+        *serialization_catalog_.mutable_bus(serialization_catalog_.bus_size()-1) = std::move(bus_pb);
+    }
+}*/
 
 // Сохраняет сериализованный каталог в поток output
 void Serialization::SaveTo() const {
@@ -210,6 +226,37 @@ std::vector<int> Serialization::GetStopsId(int i) {
 	stops_id.push_back(id);
   }
   return stops_id;
+}
+
+// Десериализуем каталог
+void Serialization::DeserializeTransportCatalogue(catalog::TransportCatalogue& load_catalog) {
+   
+    int size = GetStopCount();
+    
+    for (int i = 0; i < size; ++i) {
+        auto stop = serialization_catalog_.stop(i);
+	  load_catalog.AddStop(stop.stop_name(), stop.point().lat(), stop.point().lng());
+	}
+	
+	size = serialization_catalog_.map_distance_size();
+    for (int i = 0; i < size; ++i) {
+    auto dist = serialization_catalog_.map_distance(i);
+	load_catalog.SetDistance(load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_from()))),  load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_to()))), dist.distance());
+	}
+	
+    size = serialization_catalog_.bus_size();
+	for (auto& bus : serialization_catalog_.bus()) {
+     
+        std::vector<std::string_view> stops;
+
+        for (auto& stop_id : bus.stop_num()) {
+            stops.push_back(load_catalog.GetStopNameFromId(stop_id));
+        }
+
+        load_catalog.AddBus(bus.bus_name(), stops, bus.round_trip());
+	}
+	
+	load_catalog.AddRoutingSetting(serialization_catalog_.routing_setting().wait_time(), serialization_catalog_.routing_setting().bus_velocity());	
 }
 
 double Serialization::GetRenderWidth() {
@@ -256,8 +303,8 @@ std::pair<double, double> Serialization::GetOffset(std::string what) {
 
 svg::Color Serialization::ConvertBack(catalog_buf::Color& color) {
   svg::Color anser;
-  if (color.has_color_name()) {
-	anser = color.color_name();
+  if (color.has_color()) {
+	anser = color.color().color_name();
   } 
   else if (color.has_rgb()) {
 	svg::Rgb rgb(color.rgb().red(), color.rgb().green(), color.rgb().blue());
@@ -285,35 +332,6 @@ int Serialization::GetPaletteSize() {
   return serialization_catalog_.render_settings().color_palette_size();
 }
 
-// Возвращает десериализованный каталог
-/*
-void Serialization::DeserializeTransportCatalogue(catalog::TransportCatalogue& load_catalog) {
-{    
-    int size = serialization_catalog_.stop_size();
-    
-    for (int i = 0; i < size; ++i) {
-        auto stop = serialization_catalog_.stop(i);
-	  load_catalog.AddStop(stop.stop_name(), stop.point().lat(), stop.point().lng());
-	}
-	}
-	size = serialization_catalog_.map_distance_size();
-    for (int i = 0; i < size; ++i) {
-    auto dist = serialization_catalog_.map_distance(i);
-	load_catalog.SetDistance(load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_from()))),  load_catalog.FindStop(std::string(load_catalog.GetStopNameFromId(dist.stop_id_to()))), dist.distance());
-	}
-	
-    size = serialization_catalog_.bus_size();
-	for (auto& bus : serialization_catalog_.bus()) {
-     
-        std::vector<std::string_view> stops;
-
-        for (auto& stop_id : bus.stop_num()) {
-            stops.push_back(load_catalog.GetStopNameFromId(stop_id));
-        }
-
-        load_catalog.AddBus(bus.bus_name(), stops, bus.round_trip());
-	}
-}*/
 
 // Загружает сериализованный каталог из file_
 void Serialization::LoadFrom() {

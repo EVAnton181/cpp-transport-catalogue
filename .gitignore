@@ -30,3 +30,18 @@
 *.exe
 *.out
 *.app
+
+# JSON file
+*.json
+
+# SVG
+*.svg
+
+# User file
+test_functions.*
+
+# txt file
+*.txt
+
+# include CMakeList
+!CMakeLists.txt

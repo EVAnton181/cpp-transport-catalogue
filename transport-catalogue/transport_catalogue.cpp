@@ -49,10 +49,8 @@ void TransportCatalogue::SetDistance(domain::Stop* departure_stop, domain::Stop*
 }
 
 void TransportCatalogue::AddRoutingSetting(int wait_time, int bus_velocity)  {
-    const double to_m = 1000;
-    const double to_min = 60;
     routing_setting_.wait_time = wait_time;
-    routing_setting_.bus_velocity = bus_velocity * to_m / to_min;
+    routing_setting_.bus_velocity = bus_velocity;
 }
 
 void TransportCatalogue::InitRouterGraph() {
@@ -60,7 +58,9 @@ void TransportCatalogue::InitRouterGraph() {
 }
 
 void TransportCatalogue::AddEdgeInRouterGraph() {
-
+    const double to_m = 1000;
+    const double to_min = 60;
+    double convert_bus_velocity = routing_setting_.bus_velocity * to_m /to_min;
     graph::Edge<double> added_edge;
     for (auto& bus : buses_) {
         added_edge.bus = &bus;
@@ -79,7 +79,7 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
 								
                 sum_distance += distance.value();
 								
-                added_edge.weight = sum_distance /  routing_setting_.bus_velocity + routing_setting_.wait_time;
+                added_edge.weight = sum_distance /  convert_bus_velocity + routing_setting_.wait_time;
                 
                 added_edge.stops_count = j - i;
 								
@@ -97,7 +97,7 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
                         sum_back_distance += distance.value();
                     }
 									
-                    added_edge.weight = sum_back_distance /   routing_setting_.bus_velocity + routing_setting_.wait_time;
+                    added_edge.weight = sum_back_distance /   convert_bus_velocity + routing_setting_.wait_time;
 									
                     router_graph_.AddEdge(added_edge);
                 }
@@ -105,6 +105,11 @@ void TransportCatalogue::AddEdgeInRouterGraph() {
             }
         }
     }
+}
+
+void TransportCatalogue::InitDeserializeRouterGraph(std::vector<graph::Edge<double>> edges, std::vector<std::vector<size_t>> incidence_lists) {
+  router_graph_ = graph::DirectedWeightedGraph<double>(incidence_lists , edges);
+//   router_graph_.InitEdges(edges); 
 }
 
 domain::Stop* TransportCatalogue::FindStop(const std::string& name) {

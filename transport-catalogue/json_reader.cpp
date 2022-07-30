@@ -361,7 +361,7 @@ void ProcessRequestsJSON(catalog::TransportCatalogue& catalog, map_renderer::Map
 
     serialization.DeserializeTransportCatalogue(catalog);
     
-    BuildGraph(catalog);
+//     BuildGraph(catalog);
     
     RequestHandler handler(catalog, map, catalog.GetGraph(), serialization);
     

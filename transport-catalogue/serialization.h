@@ -14,7 +14,8 @@
 
 #include <transport_catalogue.pb.h>
 #include "svg.h"
-
+#include "domain.h"
+#include "graph.h"
 #include "transport_catalogue.h"
 
 #include <iostream>
@@ -44,7 +45,9 @@ public:
 	
 	void InitSerializationBus(std::string bus_name, bool round_trip, std::vector<int> bus_stops);
 	
-	void InitRoutingSettings(int wait_time,  double bus_velocity);
+	void InitRoutingSettings(int wait_time, int bus_velocity);
+	
+	void InitGraph(std::vector<domain::ForSerializationGraph> edges, std::vector<std::vector<int>> edge_id);
 	
 	void InitRenderSettiingsParam(double width, double heidht, double padding, double line_width, double stop_radius, int bus_lable_font_size, int stop_lable_font_size, double underlayer_width);
 	

@@ -105,6 +105,14 @@ namespace catalog {
          * @return None
         */
         void AddEdgeInRouterGraph();
+        
+        /*!
+         * Инициализируем и заполняем граф из десериализованным графом 
+		 *
+         * @return None
+        */
+        void InitDeserializeRouterGraph(std::vector<graph::Edge<double>> edges, std::vector<std::vector<size_t>> incidence_lists);
+        
         /*!
          * Ищет информацию об остановке в каталоге
          * 

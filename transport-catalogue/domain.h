@@ -54,7 +54,7 @@ struct BusStat {
 
 struct RoutingSetting {
   int wait_time = 0;
-  double bus_velocity = 0;
+  int bus_velocity = 0;
   
 };
 
@@ -64,6 +64,14 @@ struct RouteInfo {
     std::string_view bus_name;
     int span_count;
     double time;
+};
+
+struct ForSerializationGraph {
+  int from;
+  int to;
+  double weight;
+  int stops_count;
+  std::string bus_name;
 };
 
 }    //namespace domain

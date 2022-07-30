@@ -106,6 +106,28 @@ void RequestHandler::InitSerializationCatalog() {
     auto router_settings = db_.GetRoutingSetting();
     serialization_.InitRoutingSettings(router_settings.wait_time, router_settings.bus_velocity);
 
+    // сериализация графа
+    {
+		const graph::DirectedWeightedGraph<double> graph = db_.GetGraph();
+		std::vector<domain::ForSerializationGraph> graphs_struct;
+		std::vector<std::vector<int>> incidence_lists(graph.GetVertexCount());
+		int size = graph.GetEdgeCount();
+		for (int i = 0; i < size; ++i) {
+			auto edge = graph.GetEdge(i);
+			domain::ForSerializationGraph conver_edge;
+			conver_edge.from = edge.from;
+			conver_edge.to = edge.to;
+			conver_edge.weight = edge.weight;
+			conver_edge.stops_count = edge.stops_count;
+			conver_edge.bus_name = edge.bus->bus;
+			
+			graphs_struct.push_back(conver_edge);
+			incidence_lists.at(conver_edge.from).push_back(graphs_struct.size() - 1);
+		}
+		
+		serialization_.InitGraph(graphs_struct, incidence_lists);
+	}
+	
     // сериализация настроек 
     {
         auto renderer_settings = renderer_.GetSettings();
@@ -126,6 +148,7 @@ void RequestHandler::InitSerializationCatalog() {
         
         serialization_.InitRenderColor(renderer_settings.underlayer_color, renderer_settings.color_palette);
     }
+    
     
     
 }

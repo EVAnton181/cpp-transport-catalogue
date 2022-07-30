@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "map_renderer.proto";
+import "graph.proto";
 
 package catalog_buf;
 
@@ -37,4 +38,5 @@ message Catalog {
     repeated Distance map_distance = 3;
     RenderSetting render_settings = 4;
     RoutingSetting routing_setting = 5;
+    Graph graph = 6;
 }

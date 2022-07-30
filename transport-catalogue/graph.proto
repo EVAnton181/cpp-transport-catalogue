@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package catalog_buf;
+
+message Edge {
+	int32 from = 1;
+	int32 to = 2;
+	double weight = 3;
+	int32 stops_count = 4;
+	string bus_name = 5;
+}
+
+message IncidenceList {
+	repeated int32 edge_id = 1;
+}
+
+message Graph {
+	repeated Edge edges = 1;
+	repeated IncidenceList incidence_lists = 2;
+}

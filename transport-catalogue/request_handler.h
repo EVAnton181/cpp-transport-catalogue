@@ -20,6 +20,7 @@
 #include "transport_catalogue.h"
 #include "map_renderer.h"
 #include "domain.h"
+#include "graph.h"
 #include "transport_router.h"
 #include "serialization.h"
 

@@ -42,15 +42,43 @@ void Serialization::InitSerializationBus(std::string bus_name, bool round_trip, 
     *serialization_catalog_.mutable_bus(serialization_catalog_.bus_size()-1) = std::move(bus_pb);
 }
 
-void Serialization::InitRoutingSettings(int wait_time,  double bus_velocity) {
-    const double to_km = 1/1000;
-    const double to_h = 1/60;
-    
+void Serialization::InitRoutingSettings(int wait_time,  int bus_velocity) {
     catalog_buf::RoutingSetting settings_pb;
     settings_pb.set_wait_time(wait_time);
-    settings_pb.set_bus_velocity(static_cast<int>(bus_velocity / to_h * to_km));
+    settings_pb.set_bus_velocity(bus_velocity);
     
     *serialization_catalog_.mutable_routing_setting() = std::move(settings_pb);
+}
+
+void Serialization::InitGraph(std::vector<domain::ForSerializationGraph> edges, std::vector<std::vector<int>> edge_id) {
+	catalog_buf::Graph graph_pb;
+	
+	for (auto& edge : edges) {
+		catalog_buf::Edge edge_pb;
+	
+		edge_pb.set_from(edge.from);
+		edge_pb.set_to(edge.to);
+		edge_pb.set_weight(edge.weight);
+		edge_pb.set_stops_count(edge.stops_count);
+		edge_pb.set_bus_name(edge.bus_name);
+		
+		graph_pb.add_edges();
+		*graph_pb.mutable_edges(graph_pb.edges_size() - 1) = std::move(edge_pb);
+	}
+	
+	for (auto& list : edge_id) {
+		
+		catalog_buf::IncidenceList edges_id_pb;
+		
+		for (auto& id : list) {
+			edges_id_pb.add_edge_id(id);
+		}
+		
+		graph_pb.add_incidence_lists();
+		*graph_pb.mutable_incidence_lists(graph_pb.incidence_lists_size() - 1) = std::move(edges_id_pb);
+	}
+	
+	*serialization_catalog_.mutable_graph() = std::move(graph_pb);
 }
 
 void Serialization::InitRenderSettiingsParam(double width, double heidht, double padding, double line_width, double stop_radius, int bus_lable_font_size, int stop_lable_font_size, double underlayer_width) {
@@ -257,6 +285,31 @@ void Serialization::DeserializeTransportCatalogue(catalog::TransportCatalogue& l
 	}
 	
 	load_catalog.AddRoutingSetting(serialization_catalog_.routing_setting().wait_time(), serialization_catalog_.routing_setting().bus_velocity());	
+	
+	std::vector<graph::Edge<double>> add_edges;
+	for (auto& edge_pb : serialization_catalog_.graph().edges()) {
+		graph::Edge<double> edge;
+		edge.from = edge_pb.from();
+		edge.to = edge_pb.to();
+		edge.weight = edge_pb.weight();
+		edge.stops_count = edge_pb.stops_count();
+		edge.bus = load_catalog.FindBus(edge_pb.bus_name());
+		
+		add_edges.push_back(edge);
+	}
+	
+	size = serialization_catalog_.graph().incidence_lists_size();
+	std::vector<std::vector<size_t>> incidence_lists(size);
+	for (int i = 0; i < size; ++i) {
+		std::vector<size_t> ids;
+		for (auto& id : serialization_catalog_.graph().incidence_lists(i).edge_id()) {
+			ids.push_back(static_cast<size_t>(id));
+		}
+		incidence_lists.push_back(ids);
+	}
+	
+	load_catalog.InitDeserializeRouterGraph(add_edges, incidence_lists);
+
 }
 
 double Serialization::GetRenderWidth() {

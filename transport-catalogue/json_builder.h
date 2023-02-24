@@ -1,3 +1,11 @@
+/*!
+ * @file json_builder.h
+ * @author Elistratov Anton
+ * @date Июль 2022
+ * @version 1.0
+ * 
+ * @brief Заголовочный файл для создания массива данных в формате JSONs
+*/
 #pragma once
 
 #include <iostream>

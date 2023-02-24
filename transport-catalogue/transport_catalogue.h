@@ -35,15 +35,16 @@ namespace catalog {
  * 
  * Класс хранения и доступа к информации об автобусных остановках и 
  * автобусных маршрутах.
- * Данный класс не работает с вводом и выводом.
  */
-    using KeyStops = std::pair<domain::Stop*, domain::Stop*>;
+
+	using KeyStops = std::pair<domain::Stop*, domain::Stop*>;
 
     class TransportCatalogue {
     public:
 		
-        TransportCatalogue() {}
+        TransportCatalogue() = default;
         
+        /// Копирующий конструктор
         TransportCatalogue(TransportCatalogue& other);
         
         /*!
@@ -66,7 +67,6 @@ namespace catalog {
          * 
          * @return None
         */
-		// В модул geo.h добавил конструктор, который создает структуру из двух double, а добавляющий не знает как храняться данные, он просто передает широту и долготу
         void AddStop(std::string_view name, double lat, double lng);
         
 		/*!
@@ -132,7 +132,7 @@ namespace catalog {
         domain::Bus* FindBus(const std::string_view& name) const;
         
         /*!
-         * Преобразует данные о маршруте "name" в общее кол-во сотановок, 
+         * Преобразует данные о маршруте "name" в общее кол-во остановок, 
          * кол-во уникальных остановок и длину маршрута и "кривизну" маршрута
          * 
          * @param[in] bus_name Имя маршрута, который необходимо найти
@@ -329,10 +329,12 @@ namespace catalog {
         };
         
         using KeyStops = std::pair<domain::Stop*, domain::Stop*>;
-        std::unordered_map<KeyStops, double, pair_hash> distance_; /// Контейнер с дистанциями между остановками
+        
+        /// Контейнер с дистанциями между остановками
+        std::unordered_map<KeyStops, double, pair_hash> distance_; 
+        
        
-       domain::RoutingSetting routing_setting_;
-//        router::TransportRoutet transport_router_;
+       domain::RoutingSetting routing_setting_;             // 
        graph::DirectedWeightedGraph<double> router_graph_;
        
     };

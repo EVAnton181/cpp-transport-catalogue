@@ -1,4 +1,13 @@
-
+/*!
+ * @file svg.h
+ * @brief Заголовочный файл для формирования файла в формате svg
+ * 
+ * @author Elistratov Anton
+ * 
+ * @version 1.0
+ * @date Май 2022
+ * 
+*/
 #pragma once
 
 #include <cstdint>
@@ -202,7 +211,6 @@ private:
 
 /*
  * Класс Circle моделирует элемент <circle> для отображения круга
- * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
  */
 class Circle final : public Object , public PathProps<Circle>{
 public:
@@ -218,7 +226,6 @@ private:
 
 /*
  * Класс Polyline моделирует элемент <polyline> для отображения ломаных линий
- * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
  */
 class Polyline : public Object, public PathProps<Polyline>{
 public:
@@ -232,7 +239,6 @@ private:
 
 /*
  * Класс Text моделирует элемент <text> для отображения текста
- * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
  */
 class Text : public Object, public PathProps<Text>{
 public:

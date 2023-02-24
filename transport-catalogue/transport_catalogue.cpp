@@ -263,13 +263,10 @@ graph::DirectedWeightedGraph<double>& TransportCatalogue::GetGraph() {
     return router_graph_;
 }
 
-size_t TransportCatalogue::GetStopId(std::string_view stop_name) const {
-    return stopname_to_stop_.at(stop_name)->stop_id;
-}
+// size_t TransportCatalogue::GetStopId(std::string_view stop_name) const {
+//     return stopname_to_stop_.at(stop_name)->stop_id;
+// }
 
-std::string_view TransportCatalogue::GetStopNameFromId(size_t id) const {
-    return stops_.at(id).stop_name;
-}
 
 double TransportCatalogue::GetWaitTime() const {
     return routing_setting_.wait_time;
@@ -344,4 +341,8 @@ std::vector<std::tuple<int, int, double>> TransportCatalogue::GetDistances() con
 
 domain::RoutingSetting TransportCatalogue::GetRoutingSetting() const{
     return routing_setting_;
+}
+
+std::string_view TransportCatalogue::GetStopNameFromId(size_t id) const {
+    return stops_.at(id).stop_name;
 }

@@ -15,9 +15,10 @@
 
 namespace geo {
 
+/// Структура с географическими координатами
 struct Coordinates {
-    double lat; // Широта
-    double lng; // Долгота
+    double lat; ///< Широта
+	double lng; ///< Долгота
     
     bool operator==(const Coordinates& other) const {
         return lat == other.lat && lng == other.lng;
@@ -28,6 +29,12 @@ struct Coordinates {
     }
 };
 
+/*!
+ * Функция вычисления растояния между координатами с учетом кривизны Земли
+ * 
+ * @param from Координаты откуда
+ * @param to Координаты куда
+ */
 double ComputeDistance(Coordinates from, Coordinates to);
 
 }  // namespace geo

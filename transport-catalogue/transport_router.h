@@ -1,3 +1,13 @@
+/*!
+ * @file transport_router.h
+ * @brief Заголовочный файл с описанием структуры  информации о марщруте, 
+ * и определением класса маршрутов.
+ * 
+ * @author Elistratov Anton
+ * 
+ * @version 1.0
+ * @date Май 2022
+ */
 #pragma once
 
 #include <optional>
